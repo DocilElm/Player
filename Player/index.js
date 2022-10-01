@@ -47,27 +47,6 @@ register('command', essence_data).setCommandName('pess');
 register('command', slayers_data).setCommandName('pslayers');
 register('command', slayers_data).setCommandName('pslayer');
 
-register('command', test).setCommandName('test');
-
-function test(username){
-  if(!username){username = Player.getName()}
-  /*g_rank(username,apikey).then(rank_data => {
-    let name_ = JSON.parse(rank_data).rank;
-    let user_uuid = JSON.parse(rank_data).uuid;
-    get_profile_id(user_uuid, null, apikey).then(res => {
-    let profile_id = res.profile_id;
-    let cute_name = res.cute_name;
-    print(`${profile_id}\n${cute_name}`)
-    });
-});*/
-  /*const date = new Date(201392);
-  //const date = new Date(1664265572751);
-  const [month, day, year] = [date.getMonth(), date.getDate(), date.getFullYear()];
-  const [hour, minutes, seconds] = [date.getHours(), date.getMinutes(), date.getSeconds()];
-  print(`${date}\nMonth: ${month}\nDay: ${day}\nYear: ${year}\nHour: ${hour}\nMinutes: ${minutes}\nSeconds: ${seconds}`)
-  */
-}
-
 register("chat", (key) => {
   data.api_key = key
   data.save()

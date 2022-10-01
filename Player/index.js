@@ -6,9 +6,9 @@ import request from 'request/index';
 import PogObject from "PogData";
 import sleep from 'sleep';
 import { drag } from './utils/petlvl';
-import { max_cata_lvl } from './utils/catalvl';
-import { short_number, math_number, hover_msg, break_chat, mid_chat, colors } from "./utils/functions"
-import { g_rank, PREFIX, check_apikey, get_blaze, get_pets, get_dungeons, get_slayers, get_player_data, get_profile_id } from "./utils/cons"
+import { max_cata_lvl } from './utils/cata';
+import { short_number, math_number, hover_msg, break_chat, mid_chat, colors, slayer_loop, cata_loop, pet_loop } from "./utils/functions"
+import { g_rank, PREFIX, check_apikey, get_pets, get_dungeons, get_slayers, get_player_data, get_profile_id } from "./utils/cons"
 
 let data = new PogObject("Player", {  
   api_key: null
@@ -47,6 +47,27 @@ register('command', essence_data).setCommandName('pess');
 register('command', slayers_data).setCommandName('pslayers');
 register('command', slayers_data).setCommandName('pslayer');
 
+register('command', test).setCommandName('test');
+
+function test(username){
+  if(!username){username = Player.getName()}
+  /*g_rank(username,apikey).then(rank_data => {
+    let name_ = JSON.parse(rank_data).rank;
+    let user_uuid = JSON.parse(rank_data).uuid;
+    get_profile_id(user_uuid, null, apikey).then(res => {
+    let profile_id = res.profile_id;
+    let cute_name = res.cute_name;
+    print(`${profile_id}\n${cute_name}`)
+    });
+});*/
+  /*const date = new Date(201392);
+  //const date = new Date(1664265572751);
+  const [month, day, year] = [date.getMonth(), date.getDate(), date.getFullYear()];
+  const [hour, minutes, seconds] = [date.getHours(), date.getMinutes(), date.getSeconds()];
+  print(`${date}\nMonth: ${month}\nDay: ${day}\nYear: ${year}\nHour: ${hour}\nMinutes: ${minutes}\nSeconds: ${seconds}`)
+  */
+}
+
 register("chat", (key) => {
   data.api_key = key
   data.save()
@@ -76,6 +97,7 @@ function set_api(api_key_set){
 function help(){
   break_chat(5)
   mid_chat(`${PREFIX}${colors[5]}All Commands`);
+  break_chat(5)
   mid_chat(`${colors[6]}/pset <Value> | Sets The Api Key`);
   mid_chat(`${colors[3]}/player <Username> ${colors[6]}| Checks Player's Stats`);
   mid_chat(`${colors[3]}/pstats <Username> ${colors[6]}| Checks Player's Stats`);
@@ -90,6 +112,8 @@ function help(){
   mid_chat(`${colors[10]}/pnether <Username> ${colors[6]}| Checks Player's Nether Data`);
   mid_chat(`${colors[6]}/phelp | Gives A List Of All The Commands`);
   break_chat(5)
+  new TextComponent(`${PREFIX} ${colors[6]}Join Our Discord!  &b&nhttps://discord.gg/SK9UDzquEN`).setClickAction("open_url").setClickValue("https://discord.gg/SK9UDzquEN").chat()
+  break_chat(5)
 }
 
 function player_data(username) {  
@@ -97,249 +121,297 @@ function player_data(username) {
   g_rank(username,apikey).then(rank_data => {
     let name_ = JSON.parse(rank_data).rank;
     let user_uuid = JSON.parse(rank_data).uuid;
-
+    get_profile_id(user_uuid, null, apikey).then(res => {
+      let profile_id = res.profile_id;
+      let cute_name = res.cute_name;
     request({
-      url : `https://hypixel-api.senither.com/v1/profiles/${user_uuid}/latest/?key=${apikey}`,
+      url : `https://api.slothpixel.me/api/skyblock/profile/${username}/${cute_name}`,
       headers: { 'User-Agent': ' Mozilla/5.0' }
      })
       .then(function(response) {
-          var profile_id = JSON.parse(response).data.name;
-          get_blaze(username,profile_id).then(blaze_data => {            
-          var skills = JSON.parse(response).data.skills;
-          var isenabled = skills.apiEnabled;
-          if (isenabled == false){return mid_chat(`${PREFIX}${colors[1]}Error Player's Skill API Off`);}
-          var dungeons = JSON.parse(response).data.dungeons;
-          var slayers = JSON.parse(response).data.slayers;
-          var coins = JSON.parse(response).data.coins;
-    
-          var combat = (Math.round(skills.combat.level * 100) / 100).toFixed(2);
-          var farming = (Math.round(skills.farming.level * 100) / 100).toFixed(2);
-          var enchanting = (Math.round(skills.enchanting.level * 100) / 100).toFixed(2);
-          var mining = (Math.round(skills.mining.level * 100) / 100).toFixed(2);
-          var foraging = (Math.round(skills.foraging.level * 100) / 100).toFixed(2);
-          var fishing = (Math.round(skills.fishing.level * 100) / 100).toFixed(2);
-          var alchemy = (Math.round(skills.alchemy.level * 100) / 100).toFixed(2);
-          var taming = (Math.round(skills.taming.level * 100) / 100).toFixed(2);
-          var carpentry = (Math.round(skills.carpentry.level * 100) / 100).toFixed(2);
-          var runecrafting = (Math.round(skills.runecrafting.level * 100) / 100).toFixed(2);
-          var skill_average = (Math.round(skills.average_skills * 100) / 100).toFixed(2);
+          get_slayers(apikey,profile_id).then(slayer_data => {
+          var skills = JSON.parse(response).members[user_uuid].skills;          
+          var dungeons = JSON.parse(response).members[user_uuid].dungeons;
+          var slayers = slayer_data.profile.members[user_uuid].slayer_bosses;
+          if(!skills.combat){
+            var combat = null;
+          }else{
+            var combat = skills.combat.floatLevel.toFixed(2);
+            var combat_val = skills.combat.xp;
+          } if(!skills.farming){
+            var farming = null;
+          }else{
+            var farming = skills.farming.floatLevel.toFixed(2);
+            var farming_val = skills.farming.xp;
+          } if(!skills.enchanting){
+            var enchanting = null;
+          }else{
+            var enchanting = skills.enchanting.floatLevel.toFixed(2);
+            var enchanting_val = skills.enchanting.xp;
+          } if(!skills.mining){
+            var mining = null;
+          }else{
+            var mining = skills.mining.floatLevel.toFixed(2);
+            var mining_val = skills.mining.xp;
+          } if(!skills.foraging){
+            var foraging = null;
+          }else{
+            var foraging = skills.foraging.floatLevel.toFixed(2);
+            var foraging_val = skills.foraging.xp;
+          } if(!skills.fishing){
+            var fishing = null;
+          }else{
+            var fishing = skills.fishing.floatLevel.toFixed(2);
+            var fishing_val = skills.fishing.xp;
+          } if(!skills.taming){
+            var taming = null;
+          }else{
+            var taming = skills.taming.floatLevel.toFixed(2);
+            var taming_val = skills.taming.xp;
+          } if(!skills.carpentry){
+            var carpentry = null;
+          }else{
+            var carpentry = skills.carpentry.floatLevel.toFixed(2);
+            var carpentry_val = skills.carpentry.xp;
+          } if(!skills.runecrafting){
+            var runecrafting = null;
+          }else{
+            var runecrafting = skills.runecrafting.floatLevel.toFixed(2);
+            var runecrafting_val = skills.runecrafting.xp;
+          } if(!skills.alchemy){
+            var alchemy = null;
+          }else{
+            var alchemy = skills.alchemy.floatLevel.toFixed(2);
+            var alchemy_val = skills.alchemy.xp;
+          }
+           var skill_average = JSON.parse(response).members[user_uuid].average_skill_level.toFixed(2);
+
+           var lvl_60 = 111672425;
+           var lvl_50 = 55172425;
+           var lvl_25 = 94500;
+           
+           //skills
+           if (skill_average < 55){skill_average = `${colors[15]}${skill_average}`}
+           else if(skill_average == 55){skill_average = `${colors[3]}${skill_average}`}
+           
+           if(combat < 60){
+             combat = `${colors[15]}${combat}`
+             combat_val = math_number(combat_val);
+             combat_val = short_number(combat_val);
+             combat_val = `${colors[6]}Total XP: ${colors[15]}${combat_val}`;
+           }
+           else if(combat == 60){
+             combat = `${colors[3]}${combat}`
+             combat_val -= lvl_60;     
+             combat_val = math_number(combat_val);
+             combat_val = short_number(combat_val);
+             combat_val = `${colors[6]}Overflow XP: ${colors[3]}${combat_val}`;
+           }
+          
+           if(mining < 60){
+             mining = `${colors[15]}${mining}`
+             mining_val = math_number(mining_val);
+             mining_val = short_number(mining_val);
+             mining_val = `${colors[6]}Total XP: ${colors[15]}${mining_val}`;
+           }
+           else if(mining == 60){
+             mining = `${colors[3]}${mining}`
+             mining_val -= lvl_60;     
+             mining_val = math_number(mining_val);
+             mining_val = short_number(mining_val);
+             mining_val = `${colors[6]}Overflow XP: ${colors[3]}${mining_val}`;
+           }
+          
+           if(farming < 60){
+             farming = `${colors[15]}${farming}`
+             farming_val = math_number(farming_val);
+             farming_val = short_number(farming_val);
+             farming_val = `${colors[6]}Total XP: ${colors[15]}${farming_val}`;
+           }
+           else if(farming == 60){
+             farming = `${colors[3]}${farming}`
+             farming_val -= lvl_60;     
+             farming_val = math_number(farming_val);
+             farming_val = short_number(farming_val);
+             farming_val = `${colors[6]}Overflow XP: ${colors[3]}${farming_val}`;
+           }
+          
+           if(enchanting < 60){
+             enchanting = `${colors[15]}${enchanting}`
+             enchanting_val = math_number(enchanting_val);
+             enchanting_val = short_number(enchanting_val);
+             enchanting_val = `${colors[6]}Total XP: ${colors[15]}${enchanting_val}`;
+           }
+           else if(enchanting == 60){
+             enchanting = `${colors[3]}${enchanting}`
+             enchanting_val -= lvl_60;     
+             enchanting_val = math_number(enchanting_val);
+             enchanting_val = short_number(enchanting_val);
+             enchanting_val = `${colors[6]}Overflow XP: ${colors[3]}${enchanting_val}`;
+           }
+          
+           if(foraging < 50){
+             foraging = `${colors[15]}${foraging}`
+             foraging_val = math_number(foraging_val);
+             foraging_val = short_number(foraging_val);
+             foraging_val = `${colors[6]}Total XP: ${colors[15]}${foraging_val}`;
+           }
+           else if(foraging == 50){
+             foraging = `${colors[3]}${foraging}`
+             foraging_val -= lvl_50;     
+             foraging_val = math_number(foraging_val);
+             foraging_val = short_number(foraging_val);
+             foraging_val = `${colors[6]}Overflow XP: ${colors[3]}${foraging_val}`;
+           }
+          
+           if(fishing < 50){
+             fishing = `${colors[15]}${fishing}`
+             fishing_val = math_number(fishing_val);
+             fishing_val = short_number(fishing_val);
+             fishing_val = `${colors[6]}Total XP: ${colors[15]}${fishing_val}`;
+           }
+           else if(fishing == 50){
+             fishing = `${colors[3]}${fishing}`
+             fishing_val -= lvl_50;     
+             fishing_val = math_number(fishing_val);
+             fishing_val = short_number(fishing_val);
+             fishing_val = `${colors[6]}Overflow XP: ${colors[3]}${fishing_val}`;
+           }
+          
+           if(alchemy < 50){
+             alchemy = `${colors[15]}${alchemy}`
+             alchemy_val = math_number(alchemy_val);
+             alchemy_val = short_number(alchemy_val);
+             alchemy_val = `${colors[6]}Total XP: ${colors[15]}${alchemy_val}`;
+           }
+           else if(alchemy == 50){
+             alchemy = `${colors[3]}${alchemy}`
+             alchemy_val -= lvl_50;     
+             alchemy_val = math_number(alchemy_val);
+             alchemy_val = short_number(alchemy_val);
+             alchemy_val = `${colors[6]}Overflow XP: ${colors[3]}${alchemy_val}`;
+           }
+          
+           if(taming < 50){
+             taming = `${colors[15]}${taming}`
+             taming_val = math_number(taming_val);
+             taming_val = short_number(taming_val);
+             taming_val = `${colors[6]}Total XP: ${colors[15]}${taming_val}`;
+           }
+           else if(taming == 50){
+             taming = `${colors[3]}${taming}`
+             taming_val -= lvl_50;     
+             taming_val = math_number(taming_val);
+             taming_val = short_number(taming_val);
+             taming_val = `${colors[6]}Overflow XP: ${colors[3]}${taming_val}`;
+           }
+          
+           if(carpentry < 50){
+             carpentry = `${colors[15]}${carpentry}`
+             carpentry_val = math_number(carpentry_val);
+             carpentry_val = short_number(carpentry_val);
+             carpentry_val = `${colors[6]}Total XP: ${colors[15]}${carpentry_val}`;
+           }      
+           else if(carpentry == 50){
+             carpentry = `${colors[3]}${carpentry}`
+             carpentry_val -= lvl_50;     
+             carpentry_val = math_number(carpentry_val);
+             carpentry_val = short_number(carpentry_val);
+             carpentry_val = `${colors[6]}Overflow XP: ${colors[3]}${carpentry_val}`;
+           }
+          
+           if(runecrafting < 24){
+             runecrafting = `${colors[15]}${runecrafting}`
+             runecrafting_val = math_number(runecrafting_val);
+             runecrafting_val = short_number(runecrafting_val);
+             runecrafting_val = `${colors[6]}Total XP: ${colors[15]}${runecrafting_val}`;
+           }
+           else if(runecrafting == 25){
+             runecrafting = `${colors[3]}${runecrafting}`
+             runecrafting_val -= lvl_25;     
+             runecrafting_val = math_number(runecrafting_val);
+             runecrafting_val = short_number(runecrafting_val);
+             runecrafting_val = `${colors[6]}Overflow XP: ${colors[3]}${runecrafting_val}`;
+           }
           //coiner
-          var purse = coins.purse;
-          var bank = coins.bank;
+          var purse = JSON.parse(response).members[user_uuid].coin_purse;
+          var bank = JSON.parse(response).banking.balance;
           purse = Math.trunc(purse);
           purse = short_number(purse);
-          bank = math_number(bank);
+          bank = Math.trunc(bank);
           bank = short_number(bank);
-          //overflow xp/total xp
-          var combat_val = skills.combat.experience;
-          var mining_val = skills.mining.experience;
-          var farming_val = skills.farming.experience;
-          var foraging_val = skills.foraging.experience;
-          var fishing_val = skills.fishing.experience;
-          var enchanting_val = skills.enchanting.experience;
-          var taming_val = skills.taming.experience;
-          var alchemy_val = skills.alchemy.experience;
-          var carpentry_val = skills.carpentry.experience;
-          var runecrafting_val = skills.runecrafting.experience;
-          var cata_val = dungeons.types.catacombs.experience;
-          var cata_50 = 569809640;
-          var lvl_60 = 111672425;
-          var lvl_50 = 55172425;
-          var lvl_25 = 94500;
+          //          
+          var cata_val = dungeons.dungeon_types.catacombs.experience;
+          var cata_50 = 569809640;          
           //cata
-          var cata_lvl = (Math.round(dungeons.types.catacombs.level * 100) / 100).toFixed(2);
+          if (!cata_val){
+            cata_lvl = null;
+            cata_val = null;
+          }else {
+            var cata_lvl = cata_loop(cata_val)
+            if(cata_lvl < 50){
+              cata_lvl = `${colors[15]}${cata_lvl}`
+              cata_val = math_number(cata_val);
+              cata_val = short_number(cata_val);
+              cata_val = `${colors[6]}Total XP: ${colors[15]}${cata_val}`;
+            }
+            else if(cata_lvl == 50){
+              cata_lvl = `${colors[3]}${cata_lvl}`
+              cata_val -= cata_50;
+              cata_val = math_number(cata_val);
+              cata_val = short_number(cata_val);
+              cata_val = `${colors[6]}Overflow XP: ${colors[3]}${cata_val}`;
+            }  
+          }           
           //slayers
-          //rev
-          var rev_lvl = slayers.bosses.revenant.level;
-          var rev_xp = slayers.bosses.revenant.experience;
-          rev_xp = short_number(rev_xp);
-          if(rev_lvl < 9){rev_xp = `${colors[15]}${rev_xp}`}
-          else if(rev_lvl == 9){rev_xp = `${colors[3]}${rev_xp}`}
-          //spider
-          var tara_lvl = slayers.bosses.tarantula.level;
-          var tara_xp = slayers.bosses.tarantula.experience;
-          tara_xp = short_number(tara_xp);
-          if(tara_lvl < 9){tara_xp = `${colors[15]}${tara_xp}`}
-          else if(tara_lvl == 9){tara_xp = `${colors[3]}${tara_xp}`}
-          //sven
-          var sven_lvl = slayers.bosses.sven.level;
-          var sven_xp = slayers.bosses.sven.experience;
-          sven_xp = short_number(sven_xp);
-          if(sven_lvl < 9){sven_xp = `${colors[15]}${sven_xp}`}
-          else if(sven_lvl == 9){sven_xp = `${colors[3]}${sven_xp}`}
-          //eman
-          var eman_lvl = slayers.bosses.enderman.level;
-          var eman_xp = slayers.bosses.enderman.experience;
-          eman_xp = short_number(eman_xp);
-          if(eman_lvl < 9){eman_xp = `${colors[15]}${eman_xp}`}
-          else if(eman_lvl == 9){eman_xp = `${colors[3]}${eman_xp}`}  
-          //blaze
-          var blaze_lvl = blaze_data.slayers.blaze.level.currentLevel;
-          var blaze_xp = blaze_data.slayers.blaze.level.xp;
-          blaze_xp = short_number(blaze_xp);
-          if(blaze_lvl < 9){blaze_xp = `${colors[15]}${blaze_xp}`}
-          else if(blaze_lvl == 9){blaze_xp = `${colors[3]}${blaze_xp}`}
-          
-    
+          var rev_xp = slayers.zombie.xp;
+          var tara_xp = slayers.spider.xp;
+          var sven_xp = slayers.wolf.xp;
+          var eman_xp = slayers.enderman.xp;
+          var blaze_xp = slayers.blaze.xp;
+          if(!rev_xp){
+            rev_xp = null;
+            rev_lvl = null;
+          }else{
+            var rev_lvl = slayer_loop(rev_xp);
+            rev_xp = short_number(rev_xp);
+            if(rev_lvl < 9){rev_xp = `${colors[15]}${rev_xp}`}
+            else if(rev_lvl == 9){rev_xp = `${colors[3]}${rev_xp}`}
+          } if(!tara_xp){
+            tara_xp = null;
+            tara_lvl = null;
+          }else{
+            var tara_lvl = slayer_loop(tara_xp);
+            tara_xp = short_number(tara_xp);
+            if(tara_lvl < 9){tara_xp = `${colors[15]}${tara_xp}`}
+            else if(tara_lvl == 9){tara_xp = `${colors[3]}${tara_xp}`}
+          } if(!sven_xp){
+            sven_xp = null;
+            sven_lvl = null;
+          }else{
+            var sven_lvl = slayer_loop(sven_xp);
+            sven_xp = short_number(sven_xp);
+            if(sven_lvl < 9){sven_xp = `${colors[15]}${sven_xp}`}
+            else if(sven_lvl == 9){sven_xp = `${colors[3]}${sven_xp}`}
+          } if(!eman_xp){
+            eman_xp = null;
+            eman_lvl = null;
+          }else{
+            var eman_lvl = slayer_loop(eman_xp);
+            eman_xp = short_number(eman_xp);
+            if(eman_lvl < 9){eman_xp = `${colors[15]}${eman_xp}`}
+            else if(eman_lvl == 9){eman_xp = `${colors[3]}${eman_xp}`}
+          } if(!blaze_xp){
+            blaze_xp = null;
+            blaze_lvl = null;
+          }else{
+            var blaze_lvl = slayer_loop(blaze_xp);
+            blaze_xp = short_number(blaze_xp);
+            if(blaze_lvl < 9){blaze_xp = `${colors[15]}${blaze_xp}`}
+            else if(blaze_lvl == 9){blaze_xp = `${colors[3]}${blaze_xp}`}
+          }
+
           var color = colors[6];
-          //skills
-          if (skill_average < 55){skill_average = `${colors[15]}${skill_average}`}
-          else if(skill_average == 55){skill_average = `${colors[3]}${skill_average}`}
-    
-          if(combat < 60){
-            combat = `${colors[15]}${combat}`
-            combat_val = math_number(combat_val);
-            combat_val = short_number(combat_val);
-            combat_val = `${colors[6]}Total XP: ${colors[15]}${combat_val}`;
-          }
-          else if(combat == 60){
-            combat = `${colors[3]}${combat}`
-            combat_val -= lvl_60;     
-            combat_val = math_number(combat_val);
-            combat_val = short_number(combat_val);
-            combat_val = `${colors[6]}Overflow XP: ${colors[3]}${combat_val}`;
-          }
-    
-          if(mining < 60){
-            mining = `${colors[15]}${mining}`
-            mining_val = math_number(mining_val);
-            mining_val = short_number(mining_val);
-            mining_val = `${colors[6]}Total XP: ${colors[15]}${mining_val}`;
-          }
-          else if(mining == 60){
-            mining = `${colors[3]}${mining}`
-            mining_val -= lvl_60;     
-            mining_val = math_number(mining_val);
-            mining_val = short_number(mining_val);
-            mining_val = `${colors[6]}Overflow XP: ${colors[3]}${mining_val}`;
-          }
-    
-          if(farming < 60){
-            farming = `${colors[15]}${farming}`
-            farming_val = math_number(farming_val);
-            farming_val = short_number(farming_val);
-            farming_val = `${colors[6]}Total XP: ${colors[15]}${farming_val}`;
-          }
-          else if(farming == 60){
-            farming = `${colors[3]}${farming}`
-            farming_val -= lvl_60;     
-            farming_val = math_number(farming_val);
-            farming_val = short_number(farming_val);
-            farming_val = `${colors[6]}Overflow XP: ${colors[3]}${farming_val}`;
-          }
-    
-          if(enchanting < 60){
-            enchanting = `${colors[15]}${enchanting}`
-            enchanting_val = math_number(enchanting_val);
-            enchanting_val = short_number(enchanting_val);
-            enchanting_val = `${colors[6]}Total XP: ${colors[15]}${enchanting_val}`;
-          }
-          else if(enchanting == 60){
-            enchanting = `${colors[3]}${enchanting}`
-            enchanting_val -= lvl_60;     
-            enchanting_val = math_number(enchanting_val);
-            enchanting_val = short_number(enchanting_val);
-            enchanting_val = `${colors[6]}Overflow XP: ${colors[3]}${enchanting_val}`;
-          }
-    
-          if(foraging < 50){
-            foraging = `${colors[15]}${foraging}`
-            foraging_val = math_number(foraging_val);
-            foraging_val = short_number(foraging_val);
-            foraging_val = `${colors[6]}Total XP: ${colors[15]}${foraging_val}`;
-          }
-          else if(foraging == 50){
-            foraging = `${colors[3]}${foraging}`
-            foraging_val -= lvl_50;     
-            foraging_val = math_number(foraging_val);
-            foraging_val = short_number(foraging_val);
-            foraging_val = `${colors[6]}Overflow XP: ${colors[3]}${foraging_val}`;
-          }
-    
-          if(fishing < 50){
-            fishing = `${colors[15]}${fishing}`
-            fishing_val = math_number(fishing_val);
-            fishing_val = short_number(fishing_val);
-            fishing_val = `${colors[6]}Total XP: ${colors[15]}${fishing_val}`;
-          }
-          else if(fishing == 50){
-            fishing = `${colors[3]}${fishing}`
-            fishing_val -= lvl_50;     
-            fishing_val = math_number(fishing_val);
-            fishing_val = short_number(fishing_val);
-            fishing_val = `${colors[6]}Overflow XP: ${colors[3]}${fishing_val}`;
-          }
-    
-          if(alchemy < 50){
-            alchemy = `${colors[15]}${alchemy}`
-            alchemy_val = math_number(alchemy_val);
-            alchemy_val = short_number(alchemy_val);
-            alchemy_val = `${colors[6]}Total XP: ${colors[15]}${alchemy_val}`;
-          }
-          else if(alchemy == 50){
-            alchemy = `${colors[3]}${alchemy}`
-            alchemy_val -= lvl_50;     
-            alchemy_val = math_number(alchemy_val);
-            alchemy_val = short_number(alchemy_val);
-            alchemy_val = `${colors[6]}Overflow XP: ${colors[3]}${alchemy_val}`;
-          }
-    
-          if(taming < 50){
-            taming = `${colors[15]}${taming}`
-            taming_val = math_number(taming_val);
-            taming_val = short_number(taming_val);
-            taming_val = `${colors[6]}Total XP: ${colors[15]}${taming_val}`;
-          }
-          else if(taming == 50){
-            taming = `${colors[3]}${taming}`
-            taming_val -= lvl_50;     
-            taming_val = math_number(taming_val);
-            taming_val = short_number(taming_val);
-            taming_val = `${colors[6]}Overflow XP: ${colors[3]}${taming_val}`;
-          }
-    
-          if(carpentry < 50){
-            carpentry = `${colors[15]}${carpentry}`
-            carpentry_val = math_number(carpentry_val);
-            carpentry_val = short_number(carpentry_val);
-            carpentry_val = `${colors[6]}Total XP: ${colors[15]}${carpentry_val}`;
-          }      
-          else if(carpentry == 50){
-            carpentry = `${colors[3]}${carpentry}`
-            carpentry_val -= lvl_50;     
-            carpentry_val = math_number(carpentry_val);
-            carpentry_val = short_number(carpentry_val);
-            carpentry_val = `${colors[6]}Overflow XP: ${colors[3]}${carpentry_val}`;
-          }
-    
-          if(runecrafting < 24){
-            runecrafting = `${colors[15]}${runecrafting}`
-            runecrafting_val = math_number(runecrafting_val);
-            runecrafting_val = short_number(runecrafting_val);
-            runecrafting_val = `${colors[6]}Total XP: ${colors[15]}${runecrafting_val}`;
-          }
-          else if(runecrafting == 25){
-            runecrafting = `${colors[3]}${runecrafting}`
-            runecrafting_val -= lvl_25;     
-            runecrafting_val = math_number(runecrafting_val);
-            runecrafting_val = short_number(runecrafting_val);
-            runecrafting_val = `${colors[6]}Overflow XP: ${colors[3]}${runecrafting_val}`;
-          }
-    
-          //cata
-          if(cata_lvl < 50){
-            cata_lvl = `${colors[15]}${cata_lvl}`
-            cata_val = math_number(cata_val);
-            cata_val = short_number(cata_val);
-            cata_val = `${colors[6]}Total XP: ${colors[15]}${cata_val}`;
-          }
-          else if(cata_lvl == 50){
-            cata_lvl = `${colors[3]}${cata_lvl}`
-            cata_val -= cata_50;
-            cata_val = math_number(cata_val);
-            cata_val = short_number(cata_val);
-            cata_val = `${colors[6]}Overflow XP: ${colors[3]}${cata_val}`;
-          }          
           break_chat(5)
           mid_chat(`${PREFIX} ${name_}`)
           mid_chat(`${color}Skill Average: ${skill_average}`)
@@ -374,7 +446,11 @@ function player_data(username) {
          print(error)
          return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Stats`);
       });
-
+    })
+    .catch(function(error) {
+       print(error)
+       return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Profile`);
+    });
   }).catch(function(error) {
     print(error)
     return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Data`);
@@ -386,8 +462,11 @@ function pets_check(username){
   g_rank(username,apikey).then(rank_data => {
     let name_ = JSON.parse(rank_data).rank;
     let user_uuid = JSON.parse(rank_data).uuid;
-    get_pets(user_uuid,apikey).then(pets_data => {
-      var total_pets = pets_data.data.pets;
+    get_profile_id(user_uuid, null, apikey).then(res => {
+      let profile_id = res.profile_id;
+      let cute_name = res.cute_name;
+      get_pets(username,cute_name).then(pets_data => {
+      var total_pets = pets_data.members[user_uuid].pets;
       var pets_length = total_pets.length;
 
       break_chat(5)
@@ -395,14 +474,12 @@ function pets_check(username){
       break_chat(5)
       let i = 0;
       while (i < pets_length) {
-        let pname = pets_data.data.pets[i].type;
-        let ptier = pets_data.data.pets[i].tier;
-        let plvl = pets_data.data.pets[i].level;
-        let pxp = pets_data.data.pets[i].xp;
-        let pcandy = pets_data.data.pets[i].candyUsed;
+        let pname = total_pets[i].name;
+        let ptier = total_pets[i].rarity;
+        let plvl = total_pets[i].level;
+        let pxp = total_pets[i].exp;
+        let pcandy = total_pets[i].candy_used;
         plvl = Math.trunc(plvl);
-
-        var helditem = pets_data.data.pets[i].heldItem;
 
         if(ptier == "MYTHIC"){var p_lvl_color = colors[11]}
         else if(ptier == "LEGENDARY"){var p_lvl_color = colors[3];}
@@ -413,24 +490,14 @@ function pets_check(username){
 
         var tpetxp = Math.trunc(pxp);
         var tpetxp = short_number(tpetxp);
+        var helditem = total_pets[i].held_item;
 
         if (helditem == null){
           var hmsg = `${colors[15]} No Held Item\n${p_lvl_color}Total Pet XP: ${tpetxp}`;
-        }else{
-        var hname = helditem.name;
-        var htier = helditem.tier;
-        var hdesc = helditem.description;
-        if(hname == "Lucky Clover"){hdesc = "Increases ✯ Magic Find by 7"}
-        else if(hname == "Antique Remedies"){hdesc = "Increases the pet's ❁ Strength by 80%"}
-        else if(hname == "Textbook"){hdesc = "Increases the pet's ✎ Intelligence by 100%"}
-        else if(hname == "Crochet Tiger Plushie"){hdesc = "Increases ⚔ Bonus Attack Speed by 35"}
-        else if(hname == "Washed-up Souvenir"){hdesc = "Increases α Sea Creature Chance by 5"}
-        else if(hname == "Spooky Cupcake"){hdesc = "Increases ❁ Strength by 30 and ✦ Speed by 20"}
-        else if(helditem == "PET_ITEM_QUICK_CLAW"){
-          hname = "Quick Claw"
-          hdesc = "Every 2 pet levels, you gain +1⛏ Mining Speed and +1☘ Mining Fortune"
-          htier = "LEGENDARY"
-        }
+        }else{        
+        var hname = pet_loop(helditem, 3);
+        var hdesc = pet_loop(helditem, 1);
+        var htier = pet_loop(helditem, 2);
 
         if(htier == "MYTHIC"){var hcolor = colors[11]}
         else if(htier == "LEGENDARY"){var hcolor = colors[3];}
@@ -446,7 +513,7 @@ function pets_check(username){
         }
         }
 
-        if(pname == "GOLDEN_DRAGON"){
+        if(pname == "Golden Dragon"){
           if(pxp > drag.g_drag[100]){
             plvl = 200;
           }else{
@@ -475,9 +542,16 @@ function pets_check(username){
         hover_msg(`${tcolor}[Lvl ${plvl}] ${clean_pname}`,`${hmsg}`)
         i++;
       }
+      break_chat(5)
+      mid_chat(`${colors[6]}Total Pets: ${colors[3]}${pets_length}`)
+      break_chat(5)
     }).catch(function(error) {
       print(error)
       return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Pets`);
+   });
+    }).catch(function(error) {
+      print(error)
+      return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Profile`);
    });
 
   }).catch(function(error) {
@@ -491,40 +565,43 @@ function cata_data(username){
   g_rank(username,apikey).then(rank_data => {
     let name_ = JSON.parse(rank_data).rank;
     let user_uuid = JSON.parse(rank_data).uuid;
-    get_dungeons(user_uuid, apikey).then(cata_ =>{
-      var cdata = cata_.data.dungeons;
+    get_profile_id(user_uuid, null, apikey).then(res => {
+      let profile_id = res.profile_id;
+      let cute_name = res.cute_name;
+    get_dungeons(username, cute_name).then(cata_ =>{
+      var cdata = cata_.dungeons;
       var secrets_found = cdata.secrets_found;
-      var catacombs_lvl = (Math.round(cdata.types.catacombs.level * 100) / 100).toFixed(2);      
-      var catacombs_xp = cdata.types.catacombs.experience;
-      var normal_comps = cdata.types.catacombs.tier_completions;
-      var master_comps = cdata.types.catacombs.master_mode.tier_completions;
+      var catacombs_lvl = cdata.catacombs.level.levelWithProgress.toFixed(2);      
+      var catacombs_xp = cdata.catacombs.level.xp;
+      var normal_comps = cdata.catacombs.floors;
+      var master_comps = cdata.master_catacombs.floors;
 
       //classes
-      var healer = cdata.classes.healer;
-      var mage = cdata.classes.mage;
-      var berserker = cdata.classes.berserker;
-      var archer = cdata.classes.archer;
-      var tank = cdata.classes.tank;
+      var healer = cdata.classes.healer.experience;
+      var mage = cdata.classes.mage.experience;
+      var berserker = cdata.classes.berserk.experience;
+      var archer = cdata.classes.archer.experience;
+      var tank = cdata.classes.tank.experience;
 
       //healer
-      var healer_lvl = (Math.round(healer.level * 100) / 100).toFixed(2);
-      var healer_xp = healer.experience;
+      var healer_lvl = healer.levelWithProgress.toFixed(2);
+      var healer_xp = healer.xp;
       //mage
-      var mage_lvl = (Math.round(mage.level * 100) / 100).toFixed(2);;
-      var mage_xp = mage.experience;
+      var mage_lvl = mage.levelWithProgress.toFixed(2);;
+      var mage_xp = mage.xp;
       //berserker
-      var berserker_lvl = (Math.round(berserker.level * 100) / 100).toFixed(2);
-      var berserker_xp = berserker.experience;
+      var berserker_lvl = berserker.levelWithProgress.toFixed(2);
+      var berserker_xp = berserker.xp;
       //archer
-      var archer_lvl = (Math.round(archer.level * 100) / 100).toFixed(2);
-      var archer_xp = archer.experience;
+      var archer_lvl = archer.levelWithProgress.toFixed(2);
+      var archer_xp = archer.xp;
       //tank
-      var tank_lvl = (Math.round(tank.level * 100) / 100).toFixed(2);
-      var tank_xp = tank.experience;
+      var tank_lvl = tank.levelWithProgress.toFixed(2);
+      var tank_xp = tank.xp;
 
-      var average_class = (healer.level + mage.level + berserker.level + archer.level + tank.level);      
+      var average_class = (healer.levelWithProgress + mage.levelWithProgress + berserker.levelWithProgress + archer.levelWithProgress + tank.levelWithProgress);      
       average_class = average_class / 5;
-      average_class = (Math.round(average_class * 100) / 100).toFixed(2);
+      average_class = average_class.toFixed(2);
 
       if(catacombs_lvl < 50){
         catacombs_lvl = `${colors[15]}${catacombs_lvl}`
@@ -547,7 +624,7 @@ function cata_data(username){
         healer_xp = `${colors[6]}Total XP: ${colors[15]}${healer_xp}`;
       }
       else if(healer_lvl == 50){
-        healer_lvl = `${colors[3]}${healer_xp}`
+        healer_lvl = `${colors[3]}${healer_lvl}`
         healer_xp -= max_cata_lvl.max_class[50];
         healer_xp = math_number(healer_xp);
         healer_xp = short_number(healer_xp);
@@ -610,28 +687,98 @@ function cata_data(username){
         tank_xp = `${colors[6]}Overflow XP: ${colors[3]}${tank_xp}`;
       }
       //Total completions
-      var entrance = normal_comps.entrance;
-      var f1 = normal_comps.tier_1;
-      var f2 = normal_comps.tier_2;
-      var f3 = normal_comps.tier_3;
-      var f4 = normal_comps.tier_4;
-      var f5 = normal_comps.tier_5;
-      var f6 = normal_comps.tier_6;
-      var f7 = normal_comps.tier_7;
+      if(!normal_comps){
+        var entrance = 0
+        var f1 = 0
+        var f2 = 0
+        var f3 = 0
+        var f4 = 0
+        var f5 = 0
+        var f6 = 0
+        var f7 = 0
+      }else{
+        if(!normal_comps[0]){
+          var entrance = 0
+        }else{
+          var entrance = normal_comps[0].stats.tier_completions;
+        }
+        if(!normal_comps[1]){
+          var f1 = 0
+        }else{
+          var f1 = normal_comps[1].stats.tier_completions;
+        } if(!normal_comps[2]){
+          var f2 = 0
+        }else{
+          var f2 = normal_comps[2].stats.tier_completions;
+        } if(!normal_comps[3]){
+          var f3 = 0
+        }else{
+          var f3 = normal_comps[3].stats.tier_completions;
+        } if(!normal_comps[4]){
+          var f4 = 0
+        }else{
+          var f4 = normal_comps[4].stats.tier_completions;
+        } if(!normal_comps[5]){
+          var f5 = 0
+        }else{
+          var f5 = normal_comps[5].stats.tier_completions;
+        } if(!normal_comps[6]){
+          var f6 = 0
+        }else{
+          var f6 = normal_comps[6].stats.tier_completions;
+        } if(!normal_comps[7]){
+          var f7 = 0
+        }else{
+          var f7 = normal_comps[7].stats.tier_completions;
+        }
+      }
 
-      var m1 = master_comps.tier_1;
-      var m2 = master_comps.tier_2;
-      var m3 = master_comps.tier_3;
-      var m4 = master_comps.tier_4;
-      var m5 = master_comps.tier_5;
-      var m6 = master_comps.tier_6;
-      var m7 = master_comps.tier_7;
+      if(!master_comps){
+        var m1 = 0
+        var m2 = 0
+        var m3 = 0
+        var m4 = 0
+        var m5 = 0
+        var m6 = 0
+        var m7 = 0
+      }else{
+        if(!master_comps[1]){
+          var m1 = 0
+        }else{
+          var m1 = master_comps[1].stats.tier_completions;
+        } if(!master_comps[2]){
+          var m2 = 0
+        }else{
+          var m2 = master_comps[2].stats.tier_completions;
+        } if(!master_comps[3]){
+          var m3 = 0
+        }else{
+          var m3 = master_comps[3].stats.tier_completions;
+        } if(!master_comps[4]){
+          var m4 = 0
+        }else{
+          var m4 = master_comps[4].stats.tier_completions;
+        } if(!master_comps[5]){
+          var m5 = 0
+        }else{
+          var m5 = master_comps[5].stats.tier_completions;
+        } if(!master_comps[6]){
+          var m6 = 0
+        }else{
+          var m6 = master_comps[6].stats.tier_completions;
+        } if(!master_comps[7]){
+          var m7 = 0
+        }else{
+          var m7 = master_comps[7].stats.tier_completions;
+        }
+      }
       
       var total_runs = (
         entrance+f1+f2+f3+f4+f5+f6+f7+m1+m2+m3+m4+m5+m6+m7
       );
       var average_secrets = secrets_found / total_runs;
-      average_secrets = (Math.round(average_secrets * 100) / 100).toFixed(2);
+      average_secrets = average_secrets.toFixed(2);
+      average_secrets = short_number(average_secrets);
       secrets_found = short_number(secrets_found);
       //
       var total_normal_val = (
@@ -665,6 +812,10 @@ function cata_data(username){
     print(error)
     return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Cata Data`);
     });
+    }).catch(function(error) {
+    print(error)
+    return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Profile`);
+ });
   }).catch(function(error) {
     print(error)
     return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Data`);
@@ -676,84 +827,206 @@ function slayers_data(username){
   g_rank(username,apikey).then(rank_data => {
     let name_ = JSON.parse(rank_data).rank;
     let user_uuid = JSON.parse(rank_data).uuid;
-    get_slayers(user_uuid, apikey).then(slayer_data => {
-      var profile_id = slayer_data.data.name;
-          get_blaze(username,profile_id).then(blaze_data => {
-            var slayers = slayer_data.data.slayers;
-            var blaze_lvl = blaze_data.slayers.blaze.level.currentLevel;
-            var blaze_xp = blaze_data.slayers.blaze.level.xp;
-            var clean_blaze_xp = blaze_xp;
-            var blaze_kills = blaze_data.slayers.blaze.kills;
-            var blaze_t1 = blaze_kills[1];
-            var blaze_t2 = blaze_kills[2];
-            var blaze_t3 = blaze_kills[3];
-            var blaze_t4 = blaze_kills[4];
+    get_profile_id(user_uuid, null, apikey).then(res => {
+      let profile_id = res.profile_id;
+      let cute_name = res.cute_name;
+      get_slayers(apikey,profile_id).then(slayer_data => {
+            var slayers = slayer_data.profile.members[user_uuid].slayer_bosses;
+            if (!slayers){return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Slayers`);}
+            /*
+            yes i copy pasted this from player_data function
+            leave me alone
+            */
             //rev
-            var rev_kills = slayers.bosses.revenant.kills;
-            var rev_t1 = rev_kills.tier_1;
-            var rev_t2 = rev_kills.tier_2;
-            var rev_t3 = rev_kills.tier_3;
-            var rev_t4 = rev_kills.tier_4;
-            var rev_t5 = rev_kills.tier_5;
-            //tara
-            var tara_kills = slayers.bosses.tarantula.kills;
-            var tara_t1 = tara_kills.tier_1;
-            var tara_t2 = tara_kills.tier_2;
-            var tara_t3 = tara_kills.tier_3;
-            var tara_t4 = tara_kills.tier_4;
-            //sven
-            var sven_kills = slayers.bosses.sven.kills;
-            var sven_t1 = sven_kills.tier_1;
-            var sven_t2 = sven_kills.tier_2;
-            var sven_t3 = sven_kills.tier_3;
-            var sven_t4 = sven_kills.tier_4;
-            //eman
-            var eman_kills = slayers.bosses.enderman.kills;
-            var eman_t1 = eman_kills.tier_1;
-            var eman_t2 = eman_kills.tier_2;
-            var eman_t3 = eman_kills.tier_3;
-            var eman_t4 = eman_kills.tier_4;
-
-            //yes i copy pasted this from player_data function
-            //leave me alone
-            //rev
-            var rev_lvl = slayers.bosses.revenant.level;
-            var rev_xp = slayers.bosses.revenant.experience;
-            var clean_rev_xp = rev_xp;
-            rev_xp = short_number(rev_xp);
-            if(rev_lvl < 9){rev_xp = `${colors[15]}${rev_xp}`}
-            else if(rev_lvl == 9){rev_xp = `${colors[3]}${rev_xp}`}
-            //spider
-            var tara_lvl = slayers.bosses.tarantula.level;
-            var tara_xp = slayers.bosses.tarantula.experience;
-            var clean_tara_xp = tara_xp;
-            tara_xp = short_number(tara_xp);
-            if(tara_lvl < 9){tara_xp = `${colors[15]}${tara_xp}`}
-            else if(tara_lvl == 9){tara_xp = `${colors[3]}${tara_xp}`}
-            //sven
-            var sven_lvl = slayers.bosses.sven.level;
-            var sven_xp = slayers.bosses.sven.experience;
-            var clean_sven_xp = sven_xp;
-            sven_xp = short_number(sven_xp);
-            if(sven_lvl < 9){sven_xp = `${colors[15]}${sven_xp}`}
-            else if(sven_lvl == 9){sven_xp = `${colors[3]}${sven_xp}`}
-            //eman
-            var eman_lvl = slayers.bosses.enderman.level;
-            var eman_xp = slayers.bosses.enderman.experience;
-            var clean_eman_xp = eman_xp;
-            eman_xp = short_number(eman_xp);
-            if(eman_lvl < 9){eman_xp = `${colors[15]}${eman_xp}`}
-            else if(eman_lvl == 9){eman_xp = `${colors[3]}${eman_xp}`}  
-            //blaze
-            blaze_xp = short_number(blaze_xp);
-            if(blaze_lvl < 9){blaze_xp = `${colors[15]}${blaze_xp}`}
-            else if(blaze_lvl == 9){blaze_xp = `${colors[3]}${blaze_xp}`} 
+            var rev_xp = slayers.zombie.xp;
+            var tara_xp = slayers.spider.xp;
+            var sven_xp = slayers.wolf.xp;
+            var eman_xp = slayers.enderman.xp;
+            var blaze_xp = slayers.blaze.xp;
+            if(!rev_xp){
+              rev_xp = null;
+              rev_lvl = null;
+            }else{
+              var rev_lvl = slayer_loop(rev_xp);
+              rev_xp = short_number(rev_xp);
+              if(rev_lvl < 9){rev_xp = `${colors[15]}${rev_xp}`}
+              else if(rev_lvl == 9){rev_xp = `${colors[3]}${rev_xp}`}
+              var rev_kills = slayers.zombie;
+              if(!rev_kills){
+                var rev_t1 = 0
+                var rev_t2 = 0
+                var rev_t3 = 0
+                var rev_t4 = 0
+                var rev_t5 = 0
+              }else{
+                if(!rev_kills.boss_kills_tier_0){
+                  var rev_t1 = 0
+                }else{
+                  var rev_t1 = rev_kills.boss_kills_tier_0;
+                }if(!rev_kills.boss_kills_tier_1){
+                  var rev_t2 = 0
+                }else{
+                  var rev_t2 = rev_kills.boss_kills_tier_1;
+                }if(!rev_kills.boss_kills_tier_2){
+                  var rev_t3 = 0
+                }else{
+                  var rev_t3 = rev_kills.boss_kills_tier_2;
+                }if(!rev_kills.boss_kills_tier_3){
+                  var rev_t4 = 0
+                }else{
+                  var rev_t4 = rev_kills.boss_kills_tier_3;
+                }if(!rev_kills.boss_kills_tier_4){
+                  var rev_t5 = 0
+                }else{
+                  var rev_t5 = rev_kills.boss_kills_tier_4;
+                }
+              }
+              print(`${rev_t1}\n${rev_t2}\n${rev_t3}\n${rev_t4}\n${rev_t5}`)
+            } if(!tara_xp){
+              tara_xp = null;
+              tara_lvl = null;
+            }else{
+              var tara_lvl = slayer_loop(tara_xp);
+              tara_xp = short_number(tara_xp);
+              if(tara_lvl < 9){tara_xp = `${colors[15]}${tara_xp}`}
+              else if(tara_lvl == 9){tara_xp = `${colors[3]}${tara_xp}`}
+              var tara_kills = slayers.spider;
+              if(!tara_kills){
+                var tara_t1 = 0
+                var tara_t2 = 0
+                var tara_t3 = 0
+                var tara_t4 = 0
+              }else{
+                if(!tara_kills.boss_kills_tier_0){
+                  var tara_t1 = 0
+                }else{
+                  var tara_t1 = tara_kills.boss_kills_tier_0;
+                }if(!tara_kills.boss_kills_tier_1){
+                  var tara_t2 = 0
+                }else{
+                  var tara_t2 = tara_kills.boss_kills_tier_1;
+                }if(!tara_kills.boss_kills_tier_2){
+                  var tara_t3 = 0
+                }else{
+                  var tara_t3 = tara_kills.boss_kills_tier_2;
+                }if(!tara_kills.boss_kills_tier_3){
+                  var tara_t4 = 0
+                }else{
+                  var tara_t4 = tara_kills.boss_kills_tier_3;
+                }
+              }
+            } if(!sven_xp){
+              sven_xp = null;
+              sven_lvl = null;
+            }else{
+              var sven_lvl = slayer_loop(sven_xp);
+              sven_xp = short_number(sven_xp);
+              if(sven_lvl < 9){sven_xp = `${colors[15]}${sven_xp}`}
+              else if(sven_lvl == 9){sven_xp = `${colors[3]}${sven_xp}`}
+              var sven_kills = slayers.wolf;
+              if(!sven_kills){
+                var sven_t1 = 0
+                var sven_t2 = 0
+                var sven_t3 = 0
+                var sven_t4 = 0
+              }else{
+                if(!sven_kills.boss_kills_tier_0){
+                  var sven_t1 = 0
+                }else{
+                  var sven_t1 = sven_kills.boss_kills_tier_0;
+                }if(!sven_kills.boss_kills_tier_1){
+                  var sven_t2 = 0
+                }else{
+                  var sven_t2 = sven_kills.boss_kills_tier_1;
+                }if(!sven_kills.boss_kills_tier_2){
+                  var sven_t3 = 0
+                }else{
+                  var sven_t3 = sven_kills.boss_kills_tier_2;
+                }if(!sven_kills.boss_kills_tier_3){
+                  var sven_t4 = 0
+                }else{
+                  var sven_t4 = sven_kills.boss_kills_tier_3;
+                }
+              }
+            } if(!eman_xp){
+              eman_xp = null;
+              eman_lvl = null;
+            }else{
+              var eman_lvl = slayer_loop(eman_xp);
+              eman_xp = short_number(eman_xp);
+              if(eman_lvl < 9){eman_xp = `${colors[15]}${eman_xp}`}
+              else if(eman_lvl == 9){eman_xp = `${colors[3]}${eman_xp}`}
+              var eman_kills = slayers.enderman;
+              if(!eman_kills){
+                var eman_t1 = 0
+                var eman_t2 = 0
+                var eman_t3 = 0
+                var eman_t4 = 0
+              }else{
+                if(!eman_kills.boss_kills_tier_0){
+                  var eman_t1 = 0
+                }else{
+                  var eman_t1 = eman_kills.boss_kills_tier_0;
+                }if(!eman_kills.boss_kills_tier_1){
+                  var eman_t2 = 0
+                }else{
+                  var eman_t2 = eman_kills.boss_kills_tier_1;
+                }if(!eman_kills.boss_kills_tier_2){
+                  var eman_t3 = 0
+                }else{
+                  var eman_t3 = eman_kills.boss_kills_tier_2;
+                }if(!eman_kills.boss_kills_tier_3){
+                  var eman_t4 = 0
+                }else{
+                  var eman_t4 = eman_kills.boss_kills_tier_3;
+                }
+              }
+            } if(!blaze_xp){
+              blaze_xp = null;
+              blaze_lvl = null;
+            }else{
+              var blaze_lvl = slayer_loop(blaze_xp);
+              blaze_xp = short_number(blaze_xp);
+              if(blaze_lvl < 9){blaze_xp = `${colors[15]}${blaze_xp}`}
+              else if(blaze_lvl == 9){blaze_xp = `${colors[3]}${blaze_xp}`}
+              var blaze_kills = slayers.blaze;
+              if(!blaze_kills){
+                var blaze_t1 = 0
+                var blaze_t2 = 0
+                var blaze_t3 = 0
+                var blaze_t4 = 0
+              }else{
+                if(!blaze_kills.boss_kills_tier_0){
+                  var blaze_t1 = 0
+                }else{
+                  var blaze_t1 = blaze_kills.boss_kills_tier_0;
+                }if(!blaze_kills.boss_kills_tier_1){
+                  var blaze_t2 = 0
+                }else{
+                  var blaze_t2 = blaze_kills.boss_kills_tier_1;
+                }if(!blaze_kills.boss_kills_tier_2){
+                  var blaze_t3 = 0
+                }else{
+                  var blaze_t3 = blaze_kills.boss_kills_tier_2;
+                }if(!blaze_kills.boss_kills_tier_3){
+                  var blaze_t4 = 0
+                }else{
+                  var blaze_t4 = blaze_kills.boss_kills_tier_3;
+                }
+              }
+            }
 
             var revkills = (rev_t1+rev_t2+rev_t3+rev_t4+rev_t5);
             var tarakills = (tara_t1+tara_t2+tara_t3+tara_t4);
             var svenkills = (sven_t1+sven_t2+sven_t3+sven_t4);
             var emankills = (eman_t1+eman_t2+eman_t3+eman_t4);
             var blazekills = (blaze_t1+blaze_t2+blaze_t3+blaze_t4);
+
+            var clean_rev_xp = slayers.zombie.xp;
+            var clean_tara_xp = slayers.spider.xp;
+            var clean_sven_xp = slayers.wolf.xp;
+            var clean_eman_xp = slayers.enderman.xp;
+            var clean_blaze_xp = slayers.blaze.xp;
 
             var total_slayer_xp = (clean_rev_xp+clean_tara_xp+clean_sven_xp+clean_eman_xp+clean_blaze_xp);
             total_slayer_xp = short_number(total_slayer_xp);
@@ -798,23 +1071,59 @@ function hotm_data(username){
   g_rank(username,apikey).then(rank_data => {
     let name_ = JSON.parse(rank_data).rank;
     let user_uuid = JSON.parse(rank_data).uuid;
-    get_profile_id(user_uuid, apikey).then(profileid_data =>{
-      var profile_id = profileid_data.data.id;
+    get_profile_id(user_uuid, null, apikey).then(res => {
+      let profile_id = res.profile_id;
     get_player_data(apikey, profile_id).then(mining_data => {
       var pid = user_uuid;
-      var g_powder = mining_data.profile.members[pid].mining_core.powder_spent_gemstone;
-      var g2_powder = mining_data.profile.members[pid].mining_core.powder_gemstone_total;
-      var crystals = mining_data.profile.members[pid].mining_core.crystals.jade_crystal.total_placed;
-      var jade = mining_data.profile.members[pid].mining_core.crystals.jade_crystal.total_found;
-      var amber = mining_data.profile.members[pid].mining_core.crystals.amber_crystal.total_found;
-      var amethyst = mining_data.profile.members[pid].mining_core.crystals.amethyst_crystal.total_found;
-      var sapphire = mining_data.profile.members[pid].mining_core.crystals.sapphire_crystal.total_found;
-      var topaz = mining_data.profile.members[pid].mining_core.crystals.topaz_crystal.total_found;
-      var jasper = mining_data.profile.members[pid].mining_core.crystals.jasper_crystal.total_found;
-      var ruby = mining_data.profile.members[pid].mining_core.crystals.ruby_crystal.state;
-
-      var m_powder = mining_data.profile.members[pid].mining_core.powder_spent_mithril;
-      var m2_powder = mining_data.profile.members[pid].mining_core.powder_mithril_total;
+      if(!mining_data.profile.members[pid].mining_core.powder_spent_gemstone){
+        var g_powder = 0
+      }else{
+        var g_powder = mining_data.profile.members[pid].mining_core.powder_spent_gemstone;
+      }if(!mining_data.profile.members[pid].mining_core.powder_gemstone_total){
+        var g2_powder = 0
+      }else{
+        var g2_powder = mining_data.profile.members[pid].mining_core.powder_gemstone_total;
+      }if(!mining_data.profile.members[pid].mining_core.crystals.jade_crystal.total_placed){
+        var crystals = 0
+      }else{
+        var crystals = mining_data.profile.members[pid].mining_core.crystals.jade_crystal.total_placed;
+      }if(!mining_data.profile.members[pid].mining_core.crystals.jade_crystal.total_found){
+        var jade = 0
+      }else{
+        var jade = mining_data.profile.members[pid].mining_core.crystals.jade_crystal.total_found;
+      }if(!mining_data.profile.members[pid].mining_core.crystals.amber_crystal.total_found){
+        var amber = 0
+      }else{
+        var amber = mining_data.profile.members[pid].mining_core.crystals.amber_crystal.total_found;
+      }if(!mining_data.profile.members[pid].mining_core.crystals.amethyst_crystal.total_found){
+        var amethyst = 0
+      }else{
+        var amethyst = mining_data.profile.members[pid].mining_core.crystals.amethyst_crystal.total_found;
+      }if(!mining_data.profile.members[pid].mining_core.crystals.sapphire_crystal.total_found){
+        var sapphire = 0
+      }else{
+        var sapphire = mining_data.profile.members[pid].mining_core.crystals.sapphire_crystal.total_found;
+      }if(!mining_data.profile.members[pid].mining_core.crystals.topaz_crystal.total_found){
+        var topaz = 0
+      }else{
+        var topaz = mining_data.profile.members[pid].mining_core.crystals.topaz_crystal.total_found;
+      }if(!mining_data.profile.members[pid].mining_core.crystals.jasper_crystal.total_found){
+        var jasper = 0
+      }else{
+        var jasper = mining_data.profile.members[pid].mining_core.crystals.jasper_crystal.total_found;
+      }if(!mining_data.profile.members[pid].mining_core.crystals.ruby_crystal.state){
+        ruby = null
+      }else{
+        var ruby = mining_data.profile.members[pid].mining_core.crystals.ruby_crystal.state;
+      }if(!mining_data.profile.members[pid].mining_core.powder_spent_mithril){
+        var m_powder = 0
+      }else{
+        var m_powder = mining_data.profile.members[pid].mining_core.powder_spent_mithril;
+      }if(!mining_data.profile.members[pid].mining_core.powder_mithril_total){
+        var m2_powder = 0
+      }else{
+        var m2_powder = mining_data.profile.members[pid].mining_core.powder_mithril_total;
+      }
       var gemstone_powder = short_number(g_powder+g2_powder);
       var mithril_powder = short_number(m_powder+m2_powder);
 
@@ -848,19 +1157,44 @@ function essence_data(username){
   g_rank(username,apikey).then(rank_data => {
     let name_ = JSON.parse(rank_data).rank;
     let user_uuid = JSON.parse(rank_data).uuid;
-    get_profile_id(user_uuid, apikey).then(profileid_data =>{
-      var profile_id = profileid_data.data.id;
+    get_profile_id(user_uuid, null, apikey).then(res => {
+      let profile_id = res.profile_id;
     get_player_data(apikey, profile_id).then(essencedata => {
       var essencedata = essencedata.profile;
       var pid = user_uuid;
-      var undead_ess = essencedata.members[pid].essence_undead;
-      var crimson_ess = essencedata.members[pid].essence_crimson;
-      var diamond_ess = essencedata.members[pid].essence_diamond;
-      var dragon_ess = essencedata.members[pid].essence_dragon;
-      var gold_ess = essencedata.members[pid].essence_gold;
-      var ice_ess = essencedata.members[pid].essence_ice;
-      var wither_ess = essencedata.members[pid].essence_wither;
-      var spider_ess = essencedata.members[pid].essence_spider;
+      if(!essencedata.members[pid].essence_undead){
+        var undead_ess = 0
+      }else{
+        var undead_ess = essencedata.members[pid].essence_undead;
+      }if(!essencedata.members[pid].essence_crimson){
+        var crimson_ess = 0
+      }else{
+        var crimson_ess = essencedata.members[pid].essence_crimson;
+      }if(!essencedata.members[pid].essence_diamond){
+        var diamond_ess = 0
+      }else{
+        var diamond_ess = essencedata.members[pid].essence_diamond;
+      }if(!essencedata.members[pid].essence_dragon){
+        var dragon_ess = 0
+      }else{
+        var dragon_ess = essencedata.members[pid].essence_dragon;
+      }if(!essencedata.members[pid].essence_gold){
+        var gold_ess = 0
+      }else{
+        var gold_ess = essencedata.members[pid].essence_gold;
+      }if(!essencedata.members[pid].essence_ice){
+        var ice_ess = 0
+      }else{
+        var ice_ess = essencedata.members[pid].essence_ice;
+      }if(!essencedata.members[pid].essence_wither){
+        var wither_ess = 0
+      }else{
+        var wither_ess = essencedata.members[pid].essence_wither;
+      }if(!essencedata.members[pid].essence_spider){
+        var spider_ess = 0
+      }else{
+        var spider_ess = essencedata.members[pid].essence_spider;
+      }
 
       undead_ess = short_number(undead_ess)
       crimson_ess = short_number(crimson_ess)
@@ -903,27 +1237,43 @@ function nether_data(username){
   g_rank(username,apikey).then(rank_data => {
     let name_ = JSON.parse(rank_data).rank;
     let user_uuid = JSON.parse(rank_data).uuid;
-    get_profile_id(user_uuid, apikey).then(profileid_data =>{
-      var profile_id = profileid_data.data.id;
-    get_player_data(apikey, profile_id).then(essencedata => {
-      var essencedata = essencedata.profile;
+    get_profile_id(user_uuid, null, apikey).then(res => {
+      let profile_id = res.profile_id;
+    get_player_data(apikey, profile_id).then(netherdata => {
+      var netherdata = netherdata.profile;
       var pid = user_uuid;
-      var kuudra_comps = essencedata.members[pid].nether_island_player_data.kuudra_completed_tiers;
-      var dojo = essencedata.members[pid].nether_island_player_data.dojo;
-      var faction = essencedata.members[pid].nether_island_player_data.selected_faction;
-      var faction_reputation = `${faction}_reputation`;
-      var reputation = essencedata.members[pid].nether_island_player_data[faction_reputation];
-
-      var normal_tier = kuudra_comps.none;
-      var hot_tier = kuudra_comps.hot;
-
-      var force = dojo.dojo_points_mob_kb;
-      var stamina = dojo.dojo_points_wall_jump;
-      var mastery = dojo.dojo_points_archer;
-      var discipline = dojo.dojo_points_sword_swap;
-      var swiftness = dojo.dojo_points_snake;
-      var tenacity = dojo.dojo_points_fireball;
-      var control = dojo.dojo_points_lock_head;
+      if(!netherdata.members[pid].nether_island_player_data.kuudra_completed_tiers){
+        var normal_tier = 0
+        var hot_tier = 0
+      }else{
+        var kuudra_comps = netherdata.members[pid].nether_island_player_data.kuudra_completed_tiers;
+        var normal_tier = kuudra_comps.none;
+        var hot_tier = kuudra_comps.hot;
+      }if(!netherdata.members[pid].nether_island_player_data.dojo){
+        var force = 0
+        var stamina = 0
+        var mastery = 0
+        var discipline = 0
+        var swiftness = 0
+        var tenacity = 0
+        var control = 0
+      }else{
+        var dojo = netherdata.members[pid].nether_island_player_data.dojo;
+        var force = dojo.dojo_points_mob_kb;
+        var stamina = dojo.dojo_points_wall_jump;
+        var mastery = dojo.dojo_points_archer;
+        var discipline = dojo.dojo_points_sword_swap;
+        var swiftness = dojo.dojo_points_snake;
+        var tenacity = dojo.dojo_points_fireball;
+        var control = dojo.dojo_points_lock_head;
+      }if(!netherdata.members[pid].nether_island_player_data.selected_faction){
+        var faction = null
+        var reputation = null
+      }else{
+        var faction = netherdata.members[pid].nether_island_player_data.selected_faction;
+        var faction_reputation = `${faction}_reputation`;
+        var reputation = netherdata.members[pid].nether_island_player_data[faction_reputation];
+      }
 
       break_chat(5)
       mid_chat(`${PREFIX} ${name_}`)

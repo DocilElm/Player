@@ -1,6 +1,7 @@
 import { cata_xp_lvl } from "./cata";
 import { pet_items } from "./pet_items";
 import { max_lvl, slayer_xp_lvl } from "./slayer";
+import { trophy_names } from "./trophyfish";
 export const colors = {
     1: '§4', // Dark Red
     2: '§c', // Red
@@ -117,5 +118,39 @@ export const pet_loop = (held_item, val) =>{
     pet_i++;
   }
 
+  }
+}
+export const trophy_loop = (trophy_id, value) =>{
+    if(value == 1) {let trophy_i = 0;
+    while (trophy_i < 100) {
+    var check_trophy_id = trophy_names.trophy_fish[trophy_i];
+    if(check_trophy_id = trophy_id){
+      var trophy_id_var = trophy_names.trophy_to_names[check_trophy_id];
+      return trophy_id_var;
+    }
+    trophy_i++;
+  }
+}
+  if (value == 2){
+    let trophy_i = 0;
+    while (trophy_i < 100) {
+    var check_trophy_id = trophy_names.trophy_fish[trophy_i];
+    if(check_trophy_id = trophy_id){
+      var trophy_result = trophy_names.trophy_fish[check_trophy_id];
+      trophy_result;
+    }
+    trophy_i++;
+  }
+  }
+}
+export const pb_date = (d) =>{
+  var date = new Date(d)
+  var [minutes, seconds] = [date.getMinutes(), date.getSeconds()];
+  
+  if (seconds < 10){
+    var seconds = `0${seconds}`
+    return `${minutes}:${seconds}`;
+  }else {
+    return `${minutes}:${seconds}`;
   }
 }

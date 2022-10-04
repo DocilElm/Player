@@ -13,5 +13,6 @@ ChatTriggers Module Currently WIP
 * /pessence | Checks Player's Essence Data
   * /pess | Checks Player's Essence Data
 * /pnether | Checks Player's Nether Data  
+* /ptrophy | Checks Player's Trophy Data
 * /pset <Value> | Sets The Api Key
 * /phelp | Shows A List Of All The Commands

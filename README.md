@@ -1,18 +1,57 @@
-# Player
+# Player Module
 ChatTriggers Module Currently WIP
 
-## Commands
-* /player <Username> | Checks Player's Stats
-  * /pstats <Username> | Checks Player's Stats
-  * /pskills <Username> | Checks Player's Stats
-* /ppets | Checks Player's Pets
-* /pcata | Checks Player's Cata
-* /pslayers | Checks Player's Slayers
-  * /pslayer | Checks Player's Slayers
-* /photm | Checks Player's Mining Data
-* /pessence | Checks Player's Essence Data
-  * /pess | Checks Player's Essence Data
-* /pnether | Checks Player's Nether Data  
-* /ptrophy | Checks Player's Trophy Data
-* /pset <Value> | Sets The Api Key
-* /phelp | Shows A List Of All The Commands
+### Features
+* Checks Player's Stats
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027129256590970880/unknown.png" width=50%>
+
+* Checks Player's Pets
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027129876223901757/unknown.png" width=50%>
+
+* Checks Player's Cata
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027130023200690236/unknown.png" width=50%>
+
+* Checks Player's Slayers
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027130216910438450/unknown.png" width=50%>
+
+* Checks Player's Mining Data
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027130454073163796/unknown.png" width=50%>
+
+* Checks Player's Essence Data
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027130593470857226/unknown.png" width=50%>
+
+* Checks Player's Nether Data  
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027130692787781653/unknown.png" width=50%>
+
+* Checks Player's Trophy Data
+<img src="https://cdn.discordapp.com/attachments/1025501723793571872/1026750630120923206/unknown.png" width=50%>
+
+
+### Commands
+* /player \<Username>
+  * Checks Player's Stats
+  ### Aliases
+  * /pskills \<Username>
+  * /pstats \<Username>
+* /ppets \<Username>
+  * Checks Player's Pets
+* /pcata \<Username>
+  * Checks Player's Cata
+* /pslayers \<Username>
+  * Checks Player's Slayers
+  ### Aliases
+  * /pslayer \<Username>
+* /photm \<Username>
+  * Checks Player's Mining Data
+* /pessence \<Username>
+  * Checks Player's Essence Data
+  ### Aliases
+  * /pess \<Username>
+* /pnether \<Username>
+  * Checks Player's Nether Data
+* /ptrophy \<Username>
+  * Checks Player's Trophy Data
+* /phelp
+  * Gives A List Of All The Commands
+* /pset \<Value>
+  * Sets The Api Key

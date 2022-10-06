@@ -10,6 +10,7 @@ import { hotm_feature } from './features/hotm_feature';
 import { essence_feature } from './features/essence_feature';
 import { nether_feature } from './features/nether_feature';
 import { trophy_feature } from './features/trophy_feature';
+import { pbot_feature } from './features/bot_feature';
 import PogObject from "PogData";
 import sleep from 'sleep';
 import { break_chat, mid_chat, colors } from "./utils/functions"
@@ -35,6 +36,8 @@ if (!fileExists("./config/ChatTriggers/modules/Player/.playerData.json")) {
 }
 register('command', set_api).setCommandName('pset');
 register('command', help).setCommandName('phelp');
+
+register('command', test).setCommandName('ptest');
 
 register("chat", (key) => {
   data.api_key = key
@@ -81,3 +84,4 @@ function help(){
   mid_chat(`${colors[6]}/phelp | Gives A List Of All The Commands`);
   break_chat(5)
 }
+import './features/bot_feature';

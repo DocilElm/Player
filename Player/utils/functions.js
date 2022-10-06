@@ -154,3 +154,8 @@ export const pb_date = (d) =>{
     return `${minutes}:${seconds}`;
   }
 }
+export const unranked_username = (username) => {
+  username = username.removeFormatting()
+  username = username.replace(/\[[\w+\+-]+] /, "").trim()
+  return username;
+}

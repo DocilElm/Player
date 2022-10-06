@@ -37,8 +37,6 @@ if (!fileExists("./config/ChatTriggers/modules/Player/.playerData.json")) {
 register('command', set_api).setCommandName('pset');
 register('command', help).setCommandName('phelp');
 
-register('command', test).setCommandName('ptest');
-
 register("chat", (key) => {
   data.api_key = key
   data.save()

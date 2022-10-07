@@ -15,7 +15,7 @@ ChatTriggers Module Currently WIP
 <img src="https://cdn.discordapp.com/attachments/749514137335365643/1027130216910438450/unknown.png" width=50%>
 
 * Checks Player's Mining Data
-<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027130454073163796/unknown.png" width=50%>
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027871834802229278/unknown.png" width=50%>
 
 * Checks Player's Essence Data
 <img src="https://cdn.discordapp.com/attachments/749514137335365643/1027130593470857226/unknown.png" width=50%>
@@ -26,6 +26,11 @@ ChatTriggers Module Currently WIP
 * Checks Player's Trophy Data
 <img src="https://cdn.discordapp.com/attachments/1025501723793571872/1026750630120923206/unknown.png" width=50%>
 
+* Auto Accept Party Invite From A List Of Players
+<img src="https://cdn.discordapp.com/attachments/1025501723793571872/1027479071011131432/unknown.png" width=50%>
+
+* Checks Player's Inventory
+<img src="https://cdn.discordapp.com/attachments/749514137335365643/1027871563527229510/unknown.png" width=50%>
 
 ### Commands
 * /player \<Username>
@@ -51,6 +56,10 @@ ChatTriggers Module Currently WIP
   * Checks Player's Nether Data
 * /ptrophy \<Username>
   * Checks Player's Trophy Data
+* /pinv \<Username>
+  * Checks Player's Inventory
+* /pbot add \<Username>
+  * Adds username to the auto accept party system
 * /phelp
   * Gives A List Of All The Commands
 * /pset \<Value>

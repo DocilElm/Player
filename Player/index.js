@@ -11,9 +11,10 @@ import { essence_feature } from './features/essence_feature';
 import { nether_feature } from './features/nether_feature';
 import { trophy_feature } from './features/trophy_feature';
 import { pbot_feature } from './features/bot_feature';
+import { inventory_feature } from './features/inventory_feature';
 import PogObject from "PogData";
 import sleep from 'sleep';
-import { break_chat, mid_chat, colors } from "./utils/functions"
+import { break_chat, mid_chat, colors, hover_msg } from "./utils/functions"
 import { PREFIX, check_apikey } from "./utils/cons"
 
 let data = new PogObject("Player", {  
@@ -83,3 +84,4 @@ function help(){
   break_chat(5)
 }
 import './features/bot_feature';
+import './features/inventory_feature';

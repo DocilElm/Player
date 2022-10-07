@@ -2,7 +2,7 @@
   "name": "Player",
   "creator": "DocilElm",
   "description": "§2Check Player's Stats!",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "entry": "index.js",
   "requires": [ 
     "request",

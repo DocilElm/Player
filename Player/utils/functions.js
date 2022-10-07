@@ -159,3 +159,43 @@ export const unranked_username = (username) => {
   username = username.replace(/\[[\w+\+-]+] /, "").trim()
   return username;
 }
+export const lore_loop = (lore) => {
+  var lore_length = lore.length;
+  let lore_i = 0;
+  let result = []
+  while(lore_i < lore_length){
+    result += `${lore[lore_i]}\n`
+    if(lore_i == lore_length || lore_i > lore_length || lore_i == lore_length-1){
+      let item_lore = reg_lore(result,'Â§', '&');
+      item_lore = reg_lore(item_lore,'â—†', '◆');
+      item_lore = reg_lore(item_lore,'âš”', '⚔');
+      item_lore = reg_lore(item_lore,'âœŽ', '✎');
+      item_lore = reg_lore(item_lore,'â��', '❁');
+      item_lore = reg_lore(item_lore,'â¦¾', '⦾');
+      item_lore = reg_lore(item_lore,'âœ¦', '✦');
+      item_lore = reg_lore(item_lore,'â˜£', '☣');
+      item_lore = reg_lore(item_lore,'â¸Ž', '⸎');
+      item_lore = reg_lore(item_lore,'â¸•', '⸕');
+      item_lore = reg_lore(item_lore,'â˜¯', '☯');
+      item_lore = reg_lore(item_lore,'â�£', '❣');
+      item_lore = reg_lore(item_lore,'â˜', '☠');
+      item_lore = reg_lore(item_lore,'â�ˆ', '❈');
+      item_lore = reg_lore(item_lore,'Â§', '&');
+      item_lore = reg_lore(item_lore,'âœª', '✪');
+      item_lore = reg_lore(item_lore,'âžŠ', '➊');
+      item_lore = reg_lore(item_lore,'âž‹', '➋');
+      item_lore = reg_lore(item_lore,'âžŒ', '➌');
+      item_lore = reg_lore(item_lore,'âž�', '➍');
+      item_lore = reg_lore(item_lore,'âžŽ', '➎');
+      item_lore = reg_lore(item_lore,'âšš', '⚚');
+      item_lore = reg_lore(item_lore,'âœ¿', '✿');
+      result = item_lore;
+      return result;
+    }
+    lore_i++
+  }
+}
+export const reg_lore = (str,replace,to) => {
+  var re = new RegExp(replace, 'g');
+  return str.replace(re,to);
+}

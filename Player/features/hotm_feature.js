@@ -1,4 +1,4 @@
-import { short_number, hover_msg, break_chat, mid_chat, colors } from "./../utils/functions"
+import { short_number, hover_msg, break_chat, mid_chat, colors, reg_lore } from "./../utils/functions"
 import { g_rank, PREFIX, get_player_data, get_profile_id } from "./../utils/cons"
 export const hotm_feature = register("command", username => {
     const data = JSON.parse(FileLib.read("./config/ChatTriggers/modules/Player/.playerData.json"))
@@ -60,16 +60,30 @@ export const hotm_feature = register("command", username => {
         var m2_powder = 0
       }else{
         var m2_powder = mining_data.profile.members[pid].mining_core.powder_mithril_total;
+      }if(!mining_data.profile.members[pid].mining_core.nodes){
+        var m_nodes = null
+      }else{
+        var m_nodes = mining_data.profile.members[pid].mining_core.nodes;
       }
       var gemstone_powder = short_number(g_powder+g2_powder);
       var mithril_powder = short_number(m_powder+m2_powder);
 
 
+      var hotm_tree = []
+      Object.entries(m_nodes).forEach(([key, value]) => {
+        if(key.includes("toggle")){}
+        else {
+          if(key.includes("special_0")){key = "peak of the mountain"}
+            key = reg_lore(key, '_', ' ')
+            hotm_tree += `${colors[6]}${key}: ${colors[3]}${value}\n`
+          }
+      });
       var crystals_result = `${colors[6]}Total Crystal Found\n${colors[5]}Jade: ${colors[3]}${jade}\n${colors[3]}Amber: ${amber}\n${colors[12]}Amethyst: ${colors[3]}${amethyst}\n${colors[7]}Sapphire: ${colors[3]}${sapphire}\n${colors[4]}Topaz: ${colors[3]}${topaz}\n${colors[11]}Jasper: ${colors[3]}${jasper}\n${colors[2]}Ruby Status: ${colors[3]}${ruby}`;
 
       mid_chat(`${PREFIX} ${name_}`)
       break_chat(5)
       hover_msg(`${colors[6]}Total Nucleus: ${colors[3]}${crystals} `,`${crystals_result}`)
+      hover_msg(`${colors[6]}HotM Tree ${colors[15]}(Hover)`,`${hotm_tree}`)
       break_chat(5)
       mid_chat(`${colors[6]}Mithril Powder: ${colors[5]}${mithril_powder}`)
       mid_chat(`${colors[6]}Gemstone Powder: ${colors[11]}${gemstone_powder}`)

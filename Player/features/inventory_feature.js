@@ -2,8 +2,10 @@ import { hover_msg, break_chat, mid_chat, colors, lore_loop, reg_lore, short_num
 import { g_rank, PREFIX, get_profile_id, slothpixel_api, get_dungeons } from "./../utils/cons"
 import { drag } from "../utils/petlvl";
 import { max_cata_lvl } from "../utils/cata";
-register("chat", (username) => {
-  const data = JSON.parse(FileLib.read("./config/ChatTriggers/modules/Player/.playerData.json"))
+import config from "../config";
+register("chat", (username, user_class) => {
+  if(!config.auto_pf_check) return
+    const data = JSON.parse(FileLib.read("./config/ChatTriggers/modules/Player/.playerData.json"))
     var apikey = `${data.api_key}`;
     if(!username){username = Player.getName()}
     if(apikey == null){return mid_chat(`${PREFIX}${colors[1]}Error Invalid Api Key`);}
@@ -27,11 +29,12 @@ register("chat", (username) => {
         var has_items = false
         var has_gyro = false;
         var has_ice_spray = false;
+        var mage_has_claymore = false;
         Object.entries(p_inv).forEach(([key, value]) => {
           let lore = value.lore;
             if(!lore){}else {
               let i_name = value.name;
-              if(i_name.includes("Terminator") || i_name.includes("Necron's Blade") || i_name.includes("Hyperion") || i_name.includes("Valkyrie") || i_name.includes("Scylla") || i_name.includes("Astraea") || i_name.includes("Claymore")){
+              if(i_name.includes("Terminator") || i_name.includes("Necron's Blade") || i_name.includes("Hyperion") || i_name.includes("Valkyrie") || i_name.includes("Scylla") || i_name.includes("Astraea")){
               has_items = true
               var item_name = reg_lore(value.name,'Â§', '&');
               item_name = reg_lore(item_name,'âœª', '✪');
@@ -45,6 +48,37 @@ register("chat", (username) => {
               lore = lore_loop(lore);
               hover_msg(`${item_name}`,`${item_name}\n${lore}`)
             }
+            //
+            if(user_class.includes("Mage") || user_class.includes("mage")){
+              if(i_name.includes("Giant's Sword")){
+                var item_name = reg_lore(value.name,'Â§', '&');
+                item_name = reg_lore(item_name,'âœª', '✪');
+                item_name = reg_lore(item_name,'âžŠ', '➊');
+                item_name = reg_lore(item_name,'âž‹', '➋');
+                item_name = reg_lore(item_name,'âžŒ', '➌');
+                item_name = reg_lore(item_name,'âž�', '➍');
+                item_name = reg_lore(item_name,'âžŽ', '➎');
+                item_name = reg_lore(item_name,'âšš', '⚚');
+                item_name = reg_lore(item_name,'âœ¿', '✿');
+                lore = lore_loop(lore);
+                hover_msg(`${item_name}`,`${item_name}\n${lore}`)
+              }
+              if(i_name.includes("Claymore")){
+                mage_has_claymore = true
+                var item_name = reg_lore(value.name,'Â§', '&');
+                item_name = reg_lore(item_name,'âœª', '✪');
+                item_name = reg_lore(item_name,'âžŠ', '➊');
+                item_name = reg_lore(item_name,'âž‹', '➋');
+                item_name = reg_lore(item_name,'âžŒ', '➌');
+                item_name = reg_lore(item_name,'âž�', '➍');
+                item_name = reg_lore(item_name,'âžŽ', '➎');
+                item_name = reg_lore(item_name,'âšš', '⚚');
+                item_name = reg_lore(item_name,'âœ¿', '✿');
+                lore = lore_loop(lore);
+                hover_msg(`${item_name}`,`${item_name}\n${lore}`)
+              }
+            }
+            //
             if(i_name.includes("Gyrokinetic Wand")){
               has_gyro = true
               var item_name = reg_lore(value.name,'Â§', '&');
@@ -75,9 +109,10 @@ register("chat", (username) => {
             }
             }
           });
-          if(has_items == false){mid_chat(`${colors[1]} User Does Not Own Terminator/Or Any Type Of Necron's Blade`);}
-          if(has_gyro == false){mid_chat(`${colors[1]} User Does Not Own Gyrokinetic Wand`);}
-          if(has_ice_spray == false){mid_chat(`${colors[1]} User Does Not Own Ice Spray Wand`);}
+          if(!has_items){mid_chat(`${colors[1]} User Does Not Own Terminator/Or Any Type Of Necron's Blade`);}
+          if(!has_gyro){mid_chat(`${colors[1]} User Does Not Own Gyrokinetic Wand`);}
+          if(!has_ice_spray){mid_chat(`${colors[1]} User Does Not Own Ice Spray Wand`);}
+          if(!mage_has_claymore){mid_chat(`${colors[1]} User Does Not Own Dark Claymore`);}
           break_chat(5)
           mid_chat(`${colors[5]}Armor`)
           Object.entries(p_armor).forEach(([key, value]) => {
@@ -143,8 +178,8 @@ register("chat", (username) => {
               mid_chat(`${tcolor}[Lvl ${p_lvl}] ${p_name}`)
             }
           });
-          if(has_spirit_pet == false){mid_chat(`${colors[6]}Has Spirit Pet: ${colors[1]}False`);}
-          if(has_drag_pet == false){mid_chat(`${colors[1]}User Dosen't Own Any Kind Of Dragon Pet`);}
+          if(!has_spirit_pet){mid_chat(`${colors[6]}Has Spirit Pet: ${colors[1]}False`);}
+          if(!has_drag_pet){mid_chat(`${colors[1]}User Does Not Own Any Kind Of Dragon Pet`);}
         break_chat(5)
           mid_chat(`${colors[5]}Talisman`)
           let total_mp = 0
@@ -205,13 +240,13 @@ register("chat", (username) => {
             mid_chat(`${colors[5]}Cata`)
           get_dungeons(username, cute_name).then(cata_ =>{
             var cdata = cata_.dungeons;
-            if(!cdata){return print("cdata error");}
+            if(!cdata) return print("cdata error");
             var secrets_found = cdata.secrets_found;
-            if(!secrets_found){return print("secrets error");}
+            if(!secrets_found) return print("secrets error");
             var catacombs_lvl = cdata.catacombs.level.levelWithProgress.toFixed(2);      
-            if(!catacombs_lvl){return print("catalvl error");}
+            if(!catacombs_lvl) return print("catalvl error");
             var catacombs_xp = cdata.catacombs.level.xp;
-            if(!catacombs_xp){return print("cataxp error");}
+            if(!catacombs_xp) return print("cataxp error");
             secrets_found = short_number(secrets_found);
 
             if(catacombs_lvl < 50){
@@ -247,7 +282,7 @@ register("chat", (username) => {
       print(error)
       return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Data`);
    });
-}).setCriteria("Dungeon Finder > ${username} joined the dungeon group! (${*} Level ${*})")
+}).setCriteria("Dungeon Finder > ${username} joined the dungeon group! (${user_class} Level ${*})")
 export const inventory_feature = register("command", username => {
     const data = JSON.parse(FileLib.read("./config/ChatTriggers/modules/Player/.playerData.json"))
     var apikey = `${data.api_key}`;
@@ -268,10 +303,7 @@ export const inventory_feature = register("command", username => {
         
         Object.entries(p_inv).forEach(([key, value]) => {
           let lore = value.lore;
-            if(!lore){
-              lore
-              item_name
-            }else {
+            if(!lore){}else {
               item_name = reg_lore(value.name,'Â§', '&');
               item_name = reg_lore(item_name,'âœª', '✪');
               item_name = reg_lore(item_name,'âžŠ', '➊');
@@ -290,10 +322,7 @@ export const inventory_feature = register("command", username => {
           break_chat(5)
           Object.entries(p_armor).forEach(([key, value]) => {
             let lore = value.lore;
-              if(!lore){
-                lore
-                item_name
-              }else {
+              if(!lore){}else {
                 item_name = reg_lore(value.name,'Â§', '&');
                 item_name = reg_lore(item_name,'âœª', '✪');
                 item_name = reg_lore(item_name,'âžŠ', '➊');

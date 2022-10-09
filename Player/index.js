@@ -16,6 +16,8 @@ import PogObject from "PogData";
 import sleep from 'sleep';
 import { break_chat, mid_chat, colors, hover_msg } from "./utils/functions"
 import { PREFIX, check_apikey } from "./utils/cons"
+import PlayerSettings from "./config";
+register("command", () => PlayerSettings.openGUI()).setName("pgui");
 
 let data = new PogObject("Player", {  
   api_key: null
@@ -80,6 +82,8 @@ function help(){
   break_chat(5)
   mid_chat(`${colors[10]}/pnether <Username> ${colors[6]}| Checks Player's Nether Data`);
   mid_chat(`${colors[4]}/ptrophy <Username> ${colors[6]}| Checks Player's Trophy Data`);
+  mid_chat(`${colors[5]}/pinv <Username> ${colors[6]}| Checks Player's Inventory Data`);
+  mid_chat(`${colors[15]}/pbot add <Username> ${colors[6]}| Auto accept party invites`);
   mid_chat(`${colors[6]}/phelp | Gives A List Of All The Commands`);
   break_chat(5)
 }

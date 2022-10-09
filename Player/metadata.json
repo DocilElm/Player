@@ -2,13 +2,14 @@
   "name": "Player",
   "creator": "DocilElm",
   "description": "§2Check Player's Stats!",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "entry": "index.js",
   "requires": [ 
     "request",
     "PogData",
     "sleep",
     "CTAutocomplete",
-    "PromiseV2"
+    "PromiseV2",
+    "Vigilance"
    ]
 }

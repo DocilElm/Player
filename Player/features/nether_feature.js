@@ -19,7 +19,9 @@ export const nether_feature = register("command", username => {
       }else{
         var kuudra_comps = netherdata.members[pid].nether_island_player_data.kuudra_completed_tiers;
         var normal_tier = kuudra_comps.none;
+        if(!normal_tier) normal_tier = 0;
         var hot_tier = kuudra_comps.hot;
+        if(!hot_tier) hot_tier = 0;
       }if(!netherdata.members[pid].nether_island_player_data.dojo){
         var force = 0
         var stamina = 0
@@ -31,12 +33,19 @@ export const nether_feature = register("command", username => {
       }else{
         var dojo = netherdata.members[pid].nether_island_player_data.dojo;
         var force = dojo.dojo_points_mob_kb;
+        if(!force) force = 0.00
         var stamina = dojo.dojo_points_wall_jump;
+        if(!stamina) stamina = 0.00
         var mastery = dojo.dojo_points_archer;
+        if(!mastery) mastery = 0.00
         var discipline = dojo.dojo_points_sword_swap;
+        if(!discipline) discipline = 0.00
         var swiftness = dojo.dojo_points_snake;
+        if(!swiftness) swiftness = 0.00
         var tenacity = dojo.dojo_points_fireball;
+        if(!tenacity) tenacity = 0.00
         var control = dojo.dojo_points_lock_head;
+        if(!control) control = 0.00
         force = short_number(force)
         stamina = short_number(stamina)
         mastery = short_number(mastery)
@@ -51,6 +60,8 @@ export const nether_feature = register("command", username => {
         var faction = netherdata.members[pid].nether_island_player_data.selected_faction;
         var faction_reputation = `${faction}_reputation`;
         var reputation = netherdata.members[pid].nether_island_player_data[faction_reputation];
+        if(faction.includes("mages")) faction = `${colors[12]}Mage`;
+        if(faction.includes("barbarians")) faction = `${colors[2]}Barbarian`;
         reputation = short_number(reputation)
       }
 

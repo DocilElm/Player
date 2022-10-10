@@ -151,7 +151,7 @@ export const cata_feature = register("command", username => {
           var f6 = 0
           var f7 = 0
         }else{
-          if(!normal_comps[0] || normal_comps[0].stats.tier_completions){
+          if(!normal_comps[0] || !normal_comps[0].stats.tier_completions){
             var entrance = 0
           }else{
             var entrance = normal_comps[0].stats.tier_completions;
@@ -168,7 +168,7 @@ export const cata_feature = register("command", username => {
               pbe_plus = pb_date(pbe_plus)
             }
           }
-          if(!normal_comps[1] || normal_comps[1].stats.tier_completions){
+          if(!normal_comps[1] || !normal_comps[1].stats.tier_completions){
             var f1 = 0
           }else{
             var f1 = normal_comps[1].stats.tier_completions;
@@ -184,7 +184,7 @@ export const cata_feature = register("command", username => {
               var pb_plusf1 = normal_comps[1].stats.fastest_time_s_plus
               pb_plusf1 = pb_date(pb_plusf1)
             }
-          } if(!normal_comps[2] || normal_comps[2].stats.tier_completions){
+          } if(!normal_comps[2] || !normal_comps[2].stats.tier_completions){
             var f2 = 0
           }else{
             var f2 = normal_comps[2].stats.tier_completions;
@@ -200,7 +200,7 @@ export const cata_feature = register("command", username => {
               var pb_plusf2 = normal_comps[2].stats.fastest_time_s_plus
               pb_plusf2 = pb_date(pb_plusf2)
             }
-          } if(!normal_comps[3] || normal_comps[3].stats.tier_completions){
+          } if(!normal_comps[3] || !normal_comps[3].stats.tier_completions){
             var f3 = 0
           }else{
             var f3 = normal_comps[3].stats.tier_completions;
@@ -216,7 +216,7 @@ export const cata_feature = register("command", username => {
               var pb_plusf3 = normal_comps[3].stats.fastest_time_s_plus
               pb_plusf3 = pb_date(pb_plusf3)
             }
-          } if(!normal_comps[4] || normal_comps[4].stats.tier_completions){
+          } if(!normal_comps[4] || !normal_comps[4].stats.tier_completions){
             var f4 = 0
           }else{
             var f4 = normal_comps[4].stats.tier_completions;
@@ -232,7 +232,7 @@ export const cata_feature = register("command", username => {
               var pb_plusf4 = normal_comps[4].stats.fastest_time_s_plus
               pb_plusf4 = pb_date(pb_plusf4)
             }
-          } if(!normal_comps[5] || normal_comps[5].stats.tier_completions){
+          } if(!normal_comps[5] || !normal_comps[5].stats.tier_completions){
             var f5 = 0
           }else{
             var f5 = normal_comps[5].stats.tier_completions;
@@ -248,7 +248,7 @@ export const cata_feature = register("command", username => {
               var pb_plusf5 = normal_comps[5].stats.fastest_time_s_plus
               pb_plusf5 = pb_date(pb_plusf5)
             }
-          } if(!normal_comps[6] || normal_comps[6].stats.tier_completions){
+          } if(!normal_comps[6] || !normal_comps[6].stats.tier_completions){
             var f6 = 0
           }else{
             var f6 = normal_comps[6].stats.tier_completions;
@@ -264,7 +264,7 @@ export const cata_feature = register("command", username => {
                 pb_plusf6 = pb_date(pb_plusf6)
               }
             }
-          } if(!normal_comps[7] || normal_comps[7].stats.tier_completions){
+          } if(!normal_comps[7] || !normal_comps[7].stats.tier_completions){
             var f7 = 0
           }else{
             var f7 = normal_comps[7].stats.tier_completions;
@@ -292,7 +292,7 @@ export const cata_feature = register("command", username => {
           var m6 = 0
           var m7 = 0
         }else{
-          if(!master_comps[1] || master_comps[1].stats.tier_completions){
+          if(!master_comps[1] || !master_comps[1].stats.tier_completions){
             var m1 = 0
           }else{
             var m1 = master_comps[1].stats.tier_completions;
@@ -308,7 +308,7 @@ export const cata_feature = register("command", username => {
               var pb_plusm1 = master_comps[1].stats.fastest_time_s_plus
               pb_plusm1 = pb_date(pb_plusm1)
             }
-          } if(!master_comps[2] || master_comps[2].stats.tier_completions){
+          } if(!master_comps[2] || !master_comps[2].stats.tier_completions){
             var m2 = 0
           }else{
             var m2 = master_comps[2].stats.tier_completions;
@@ -324,7 +324,7 @@ export const cata_feature = register("command", username => {
               var pb_plusm2 = master_comps[2].stats.fastest_time_s_plus
               pb_plusm2 = pb_date(pb_plusm2)
             }
-          } if(!master_comps[3] || master_comps[3].stats.tier_completions){
+          } if(!master_comps[3] || !master_comps[3].stats.tier_completions){
             var m3 = 0
           }else{
             var m3 = master_comps[3].stats.tier_completions;
@@ -356,7 +356,7 @@ export const cata_feature = register("command", username => {
               var pb_plusm4 = master_comps[4].stats.fastest_time_s_plus
               pb_plusm4 = pb_date(pb_plusm4)
             }
-          } if(!master_comps[5] || master_comps[5].stats.tier_completions){
+          } if(!master_comps[5] || !master_comps[5].stats.tier_completions){
             var m5 = 0
           }else{
             var m5 = master_comps[5].stats.tier_completions;
@@ -372,7 +372,7 @@ export const cata_feature = register("command", username => {
               var pb_plusm5 = master_comps[5].stats.fastest_time_s_plus
               pb_plusm5 = pb_date(pb_plusm5)
             }
-          } if(!master_comps[6] || master_comps[6].stats.tier_completions){
+          } if(!master_comps[6] || !master_comps[6].stats.tier_completions){
             var m6 = 0
           }else{
             var m6 = master_comps[6].stats.tier_completions;
@@ -388,7 +388,7 @@ export const cata_feature = register("command", username => {
               var pb_plusm6 = master_comps[6].stats.fastest_time_s_plus
               pb_plusm6 = pb_date(pb_plusm6)
             }
-          } if(!master_comps[7] || master_comps[7].stats.tier_completions){
+          } if(!master_comps[7] || !master_comps[7].stats.tier_completions){
             var m7 = 0
           }else{
             var m7 = master_comps[7].stats.tier_completions;

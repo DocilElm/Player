@@ -89,3 +89,4 @@ function help(){
 }
 import './features/bot_feature';
 import './features/inventory_feature';
+import './features/nether_feature';

@@ -9,7 +9,7 @@ import {
 
 @Vigilant("Player", "§2Player Settings", {
     getCategoryComparator: () => (a, b) => {
-        const categories = ["General", "Dungeons"];
+        const categories = ["General", "Dungeons", "Nether"];
         return categories.indexOf(a.name) - categories.indexOf(b.name);
     }
 })
@@ -31,6 +31,14 @@ class PlayerSettings {
         subcategory: "Dungeons"
     })
     bot_feature_check = true
+    //
+    @SwitchProperty({
+        name: "Ghast Alert",
+        description: "Alerts you when it's 9pm in the nether for ghast spawning",
+        category: "Nether",
+        subcategory: "Nether"
+    })
+    ghast_alert_check = true
 }
 
 export default new PlayerSettings();

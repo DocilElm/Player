@@ -1,73 +1,74 @@
 import { short_number, hover_msg, break_chat, mid_chat, colors } from "./../utils/functions"
 import { g_rank, PREFIX, get_player_data, get_profile_id } from "./../utils/cons"
 import config from "../config";
+const sound = new Sound({source:"ding.ogg"});
 let in_nether = false
 let is_9pm = false
-if(!config.ghast_alert_check) {}
-else{
-  const all_nether_areas = [
-    "Stronghold",
-    "Crimson Fields",
-    "Crimson Isle",
-    "Blazing Volcano",
-    "Odger's Hut",
-    "Plhlegblast Pool",
-    "Magma Chamber",
-    "Aura's Lab",
-    "Matriarch's Lair",
-    "Belly of the Beast",
-    "Dojo",
-    "Burning Desert",
-    "Mystic Marsh",
-    "Barbarian Outpost",
-    "Mage Outpost",
-    "Dragontail",
-    "Chief's Hut",
-    "Dragontail Blacksmith",
-    "Dragontail Townsquare",
-    "Dragontail Auction House",
-    "Dragontail Bazaar",
-    "Dragontail Bank",
-    "Minion Shop",
-    "The Dukedom",
-    "The Bastion",
-    "Scarleton",
-    "Scarleton Community Center",
-    "Throne Room",
-    "Mage Council",
-    "Scarleton Plaza",
-    "Scarleton Minion Shop",
-    "Scarleton Auction House",
-    "Scarleton Bazaar",
-    "Scarleton Bank",
-    "Scarleton Blacksmith",
-    "Igrupan's House",
-    "Igrupan's Chicken Coop",
-    "Cathedral",
-    "Courtyard",
-    "The Wasteland",
-    "Ruins of Ashfang",
-    "Forgotten Skull",
-    "Smoldering Tomb"
-  ]
-  register("step", () => {
+const all_nether_areas = [
+  "Stronghold",
+  "Crimson Fields",
+  "Crimson Isle",
+  "Blazing Volcano",
+  "Odger's Hut",
+  "Plhlegblast Pool",
+  "Magma Chamber",
+  "Aura's Lab",
+  "Matriarch's Lair",
+  "Belly of the Beast",
+  "Dojo",
+  "Burning Desert",
+  "Mystic Marsh",
+  "Barbarian Outpost",
+  "Mage Outpost",
+  "Dragontail",
+  "Chief's Hut",
+  "Dragontail Blacksmith",
+  "Dragontail Townsquare",
+  "Dragontail Auction House",
+  "Dragontail Bazaar",
+  "Dragontail Bank",
+  "Minion Shop",
+  "The Dukedom",
+  "The Bastion",
+  "Scarleton",
+  "Scarleton Community Center",
+  "Throne Room",
+  "Mage Council",
+  "Scarleton Plaza",
+  "Scarleton Minion Shop",
+  "Scarleton Auction House",
+  "Scarleton Bazaar",
+  "Scarleton Bank",
+  "Scarleton Blacksmith",
+  "Igrupan's House",
+  "Igrupan's Chicken Coop",
+  "Cathedral",
+  "Courtyard",
+  "The Wasteland",
+  "Ruins of Ashfang",
+  "Forgotten Skull",
+  "Smoldering Tomb"
+]
+register("step", () => {
+  if(!config.ghast_alert_check) return;
   let scoreb = Scoreboard.getLines().map(line => line.getName().removeFormatting());
   scoreb.forEach(line => {
       line = line.replace('👾', '')
         if (all_nether_areas.some(a => line.match(a))) in_nether = true;
         if(in_nether && line.includes(`9:00pm`)) is_9pm = true;
-    })
-  }).setFps(1);
-  register("tick", () => {
-    if(!config.ghast_alert_check) return;
-    if(in_nether) {
-      if(is_9pm){
-        is_9pm = false;
-        in_nether = false;
-        Client.showTitle("&cGhast Spawning!","&2[Player]", 1, 10, 1)
-      }
+  })
+}).setFps(1);
+register("tick", () => {
+  if(!config.ghast_alert_check) return;
+  if(in_nether) {
+    if(is_9pm){
+      is_9pm = false;
+      in_nether = false;
+      Client.showTitle("&cGhast Spawning!","&2[Player]", 1, 10, 1)
+      sound.play();
     }
-  })}
+  }
+})
 export const nether_feature = register("command", username => {
     const data = JSON.parse(FileLib.read("./config/ChatTriggers/modules/Player/.playerData.json"))
     var apikey = `${data.api_key}`;

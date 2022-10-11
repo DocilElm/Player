@@ -84,6 +84,7 @@ function help(){
   mid_chat(`${colors[4]}/ptrophy <Username> ${colors[6]}| Checks Player's Trophy Data`);
   mid_chat(`${colors[5]}/pinv <Username> ${colors[6]}| Checks Player's Inventory Data`);
   mid_chat(`${colors[15]}/pbot add <Username> ${colors[6]}| Auto accept party invites`);
+  mid_chat(`${colors[6]}/pgui | Opens Settings`);
   mid_chat(`${colors[6]}/phelp | Gives A List Of All The Commands`);
   break_chat(5)
 }

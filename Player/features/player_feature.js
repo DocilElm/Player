@@ -1,13 +1,11 @@
-const File = Java.type("java.io.File");
-import request from 'request/index';
 import { short_number, math_number, hover_msg, break_chat, mid_chat, colors, slayer_loop, cata_loop } from "./../utils/functions"
-import { g_rank, PREFIX,get_slayers, get_profile_id } from "./../utils/cons"
-var file = new File("./config/SkyblockExtras.cfg");
-if(file.exists()){
-    var player_command = "pplayer"
-    mid_chat(`${PREFIX}${colors[6]} Found ${colors[1]}SBE ${colors[6]}Config File Changing ${colors[3]}/player${colors[6]} Command To ${colors[3]}/pplayer`)
-}else if(!file.exists()){
-    var player_command = "player"
+import { g_rank, PREFIX,get_slayers, get_profile_id, slothpixel_api_achiev, slothpixel_api } from "./../utils/cons"
+const Loader = Java.type("net.minecraftforge.fml.common.Loader");
+if (Loader.isModLoaded("SkyblockExtras")) {
+  var player_command = "pplayer"
+  mid_chat(`${PREFIX}${colors[6]} Found ${colors[1]}SBE ${colors[6]}Changing ${colors[3]}/player${colors[6]} Command To ${colors[3]}/pplayer`)
+} else {
+  var player_command = "player"
 }
 export const player_data = register("command", username => {
     const data = JSON.parse(FileLib.read("./config/ChatTriggers/modules/Player/.playerData.json"))
@@ -20,67 +18,64 @@ export const player_data = register("command", username => {
       get_profile_id(user_uuid, null, apikey).then(res => {
         let profile_id = res.profile_id;
         let cute_name = res.cute_name;
-      request({
-        url : `https://api.slothpixel.me/api/skyblock/profile/${username}/${cute_name}`,
-        headers: { 'User-Agent': ' Mozilla/5.0' }
-       })
-        .then(function(response) {
+      slothpixel_api(username,cute_name).then(response => {
             get_slayers(apikey,profile_id).then(slayer_data => {
-            var skills = JSON.parse(response).members[user_uuid].skills;          
-            var dungeons = JSON.parse(response).members[user_uuid].dungeons;
+            slothpixel_api_achiev(username).then(secrets_data =>{
+            var skills = response.members[user_uuid].skills;          
+            var dungeons = response.members[user_uuid].dungeons;
             var slayers = slayer_data.profile.members[user_uuid].slayer_bosses;
             if(!skills.combat){
-              var combat = null;
+              var combat = 0;
             }else{
               var combat = skills.combat.floatLevel.toFixed(2);
               var combat_val = skills.combat.xp;
             } if(!skills.farming){
-              var farming = null;
+              var farming = 0;
             }else{
               var farming = skills.farming.floatLevel.toFixed(2);
               var farming_val = skills.farming.xp;
             } if(!skills.enchanting){
-              var enchanting = null;
+              var enchanting = 0;
             }else{
               var enchanting = skills.enchanting.floatLevel.toFixed(2);
               var enchanting_val = skills.enchanting.xp;
             } if(!skills.mining){
-              var mining = null;
+              var mining = 0;
             }else{
               var mining = skills.mining.floatLevel.toFixed(2);
               var mining_val = skills.mining.xp;
             } if(!skills.foraging){
-              var foraging = null;
+              var foraging = 0;
             }else{
               var foraging = skills.foraging.floatLevel.toFixed(2);
               var foraging_val = skills.foraging.xp;
             } if(!skills.fishing){
-              var fishing = null;
+              var fishing = 0;
             }else{
               var fishing = skills.fishing.floatLevel.toFixed(2);
               var fishing_val = skills.fishing.xp;
             } if(!skills.taming){
-              var taming = null;
+              var taming = 0;
             }else{
               var taming = skills.taming.floatLevel.toFixed(2);
               var taming_val = skills.taming.xp;
             } if(!skills.carpentry){
-              var carpentry = null;
+              var carpentry = 0;
             }else{
               var carpentry = skills.carpentry.floatLevel.toFixed(2);
               var carpentry_val = skills.carpentry.xp;
             } if(!skills.runecrafting){
-              var runecrafting = null;
+              var runecrafting = 0;
             }else{
               var runecrafting = skills.runecrafting.floatLevel.toFixed(2);
               var runecrafting_val = skills.runecrafting.xp;
             } if(!skills.alchemy){
-              var alchemy = null;
+              var alchemy = 0;
             }else{
               var alchemy = skills.alchemy.floatLevel.toFixed(2);
               var alchemy_val = skills.alchemy.xp;
             }
-             var skill_average = JSON.parse(response).members[user_uuid].average_skill_level.toFixed(2);
+             var skill_average = response.members[user_uuid].average_skill_level.toFixed(2);
   
              var lvl_60 = 111672425;
              var lvl_50 = 55172425;
@@ -230,21 +225,23 @@ export const player_data = register("command", username => {
                runecrafting_val = `${colors[6]}Overflow XP: ${colors[3]}${runecrafting_val}`;
              }
             //coiner
-            var purse = JSON.parse(response).members[user_uuid].coin_purse;
-            var bank = JSON.parse(response).banking.balance;
+            var purse = response.members[user_uuid].coin_purse;
+            var bank = response.banking.balance;
             purse = Math.trunc(purse);
             purse = short_number(purse);
             bank = Math.trunc(bank);
             bank = short_number(bank);
-            //          
+            //
+            var secrets_found = secrets_data.games.SkyBlock.tiered["TREASURE_HUNTER"].current_amount;
             var cata_val = dungeons.dungeon_types.catacombs.experience;
-            var cata_50 = 569809640;          
+            var cata_50 = 569809640;
             //cata
             if (!cata_val){
-              cata_lvl = null;
-              cata_val = null;
+              cata_lvl = 0;
+              cata_val = 0;
             }else {
               var cata_lvl = cata_loop(cata_val)
+              var cata_over_50 = cata_loop(cata_val, 1)
               if(cata_lvl < 50){
                 cata_lvl = `${colors[15]}${cata_lvl}`
                 cata_val = math_number(cata_val);
@@ -257,7 +254,13 @@ export const player_data = register("command", username => {
                 cata_val = math_number(cata_val);
                 cata_val = short_number(cata_val);
                 cata_val = `${colors[6]}Overflow XP: ${colors[3]}${cata_val}`;
-              }  
+              }else if(cata_lvl > 50){
+                cata_lvl = `${colors[3]}${cata_lvl}`
+                cata_val -= cata_over_50;
+                cata_val = math_number(cata_val);
+                cata_val = short_number(cata_val);
+                cata_val = `${colors[6]}Overflow XP: ${colors[3]}${cata_val}`;
+              }
             }           
             //slayers
             var rev_xp = slayers.zombie.xp;
@@ -266,47 +269,48 @@ export const player_data = register("command", username => {
             var eman_xp = slayers.enderman.xp;
             var blaze_xp = slayers.blaze.xp;
             if(!rev_xp){
-              rev_xp = null;
-              rev_lvl = null;
+              rev_xp = 0;
+              rev_lvl = 0;
             }else{
               var rev_lvl = slayer_loop(rev_xp);
               rev_xp = short_number(rev_xp);
               if(rev_lvl < 9){rev_xp = `${colors[15]}${rev_xp}`}
               else if(rev_lvl == 9){rev_xp = `${colors[3]}${rev_xp}`}
             } if(!tara_xp){
-              tara_xp = null;
-              tara_lvl = null;
+              tara_xp = 0;
+              tara_lvl = 0;
             }else{
               var tara_lvl = slayer_loop(tara_xp);
               tara_xp = short_number(tara_xp);
               if(tara_lvl < 9){tara_xp = `${colors[15]}${tara_xp}`}
               else if(tara_lvl == 9){tara_xp = `${colors[3]}${tara_xp}`}
             } if(!sven_xp){
-              sven_xp = null;
-              sven_lvl = null;
+              sven_xp = 0;
+              sven_lvl = 0;
             }else{
               var sven_lvl = slayer_loop(sven_xp);
               sven_xp = short_number(sven_xp);
               if(sven_lvl < 9){sven_xp = `${colors[15]}${sven_xp}`}
               else if(sven_lvl == 9){sven_xp = `${colors[3]}${sven_xp}`}
             } if(!eman_xp){
-              eman_xp = null;
-              eman_lvl = null;
+              eman_xp = 0;
+              eman_lvl = 0;
             }else{
               var eman_lvl = slayer_loop(eman_xp);
               eman_xp = short_number(eman_xp);
               if(eman_lvl < 9){eman_xp = `${colors[15]}${eman_xp}`}
               else if(eman_lvl == 9){eman_xp = `${colors[3]}${eman_xp}`}
             } if(!blaze_xp){
-              blaze_xp = null;
-              blaze_lvl = null;
+              blaze_xp = 0;
+              blaze_lvl = 0;
             }else{
               var blaze_lvl = slayer_loop(blaze_xp);
               blaze_xp = short_number(blaze_xp);
               if(blaze_lvl < 9){blaze_xp = `${colors[15]}${blaze_xp}`}
               else if(blaze_lvl == 9){blaze_xp = `${colors[3]}${blaze_xp}`}
             }
-  
+            var slayer_hover = `${colors[7]}Slayers\n${colors[5]}Revenant Slayer ${rev_lvl}: ${rev_xp}\n${colors[1]}Tarantula Slayer ${tara_lvl}: ${tara_xp}\n${colors[14]}Sven Slayer ${sven_lvl}: ${sven_xp}\n${colors[12]}Enderman Slayer ${eman_lvl}: ${eman_xp}\n${colors[3]}Blaze Slayer ${blaze_lvl}: ${blaze_xp}\n`;
+            secrets_found = short_number(secrets_found);
             var color = colors[6];
             break_chat(5)
             mid_chat(`${PREFIX} ${name_}`)
@@ -322,17 +326,17 @@ export const player_data = register("command", username => {
             hover_msg(`${color}Carpentry: ${carpentry}`,`${carpentry_val}`)
             hover_msg(`${color}Runecrafting: ${runecrafting}`,`${runecrafting_val}`)
             break_chat(5)
-            hover_msg(`${colors[1]}Cata: ${cata_lvl}`,`${cata_val}`)
+            hover_msg(`${colors[1]}Cata: ${cata_lvl}`,`${cata_val}\n${color}Total Secrets: ${colors[3]}${secrets_found}`)
             break_chat(5)
-            mid_chat(`${colors[5]}Revenant Slayer ${rev_lvl}: ${rev_xp}`)
-            mid_chat(`${colors[1]}Tarantula Slayer ${tara_lvl}: ${tara_xp}`)
-            mid_chat(`${colors[14]}Sven Slayer ${sven_lvl}: ${sven_xp}`)
-            mid_chat(`${colors[12]}Enderman Slayer ${eman_lvl}: ${eman_xp}`)
-            mid_chat(`${colors[3]}Blaze Slayer ${blaze_lvl}: ${blaze_xp}`)
+            hover_msg(`${colors[7]}Slayers ${colors[15]}(Hover)`,`${slayer_hover}`)
             break_chat(5)
             mid_chat(`${color}Purse: ${colors[3]}${purse}`)
             mid_chat(`${color}Bank: ${colors[3]}${bank}`)
             break_chat(5)
+          }).catch(function(error) {
+            print(error)
+            return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Secrets`);
+         });
          }).catch(function(error) {
            print(error)
            return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Slayer`);
@@ -351,4 +355,4 @@ export const player_data = register("command", username => {
       print(error)
       return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Data`);
    });
-}).setName(player_command).setAliases("pskills","pstats")
+}).setName(player_command).setAliases("pskills","pstats","pp")//pp = player profile :yes:

@@ -14,7 +14,7 @@ import { pbot_feature } from './features/bot_feature';
 import { inventory_feature } from './features/inventory_feature';
 import PogObject from "PogData";
 import sleep from 'sleep';
-import { break_chat, mid_chat, colors, hover_msg } from "./utils/functions"
+import { break_chat, mid_chat, colors } from "./utils/functions"
 import { PREFIX, check_apikey } from "./utils/cons"
 import PlayerSettings from "./config";
 register("command", () => PlayerSettings.openGUI()).setName("pgui");
@@ -32,6 +32,7 @@ if (!fileExists("./config/ChatTriggers/modules/Player/.playerData.json")) {
   sleep(500, () => {
     break_chat(5)
     mid_chat(`${PREFIX}${colors[6]} Run /phelp For All Commands!`)
+    mid_chat(`${PREFIX}${colors[6]} Run /pgui To Open Settings!`)
     break_chat(5)
     new TextComponent(ChatLib.getCenteredText(`${PREFIX} ${colors[6]}Join Our Discord!  &b&nhttps://discord.gg/SK9UDzquEN ${colors[15]}(Click)`)).setClickAction("open_url").setClickValue("https://discord.gg/SK9UDzquEN").chat()
     break_chat(5)

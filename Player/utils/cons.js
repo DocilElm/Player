@@ -13,6 +13,7 @@ export const get_slayers = (apikey, profile_id) => request({url : `https://api.h
 export const get_player_data = (apikey, user_uuid) => request({url : `https://api.hypixel.net/skyblock/profile?key=${apikey}&profile=${user_uuid}`,headers: { 'User-Agent': ' Mozilla/5.0' }}).then(response => JSON.parse(response)).catch(error =>{ print(error);});
 export const get_profile = (apikey, user_uuid) => request({url : `https://api.hypixel.net/skyblock/profiles?key=${apikey}&uuid=${user_uuid}`,headers: { 'User-Agent': ' Mozilla/5.0' }}).then(response => JSON.parse(response)).catch(error =>{ print(error);});
 export const slothpixel_api = (username, cute_name) => request({url : `https://api.slothpixel.me/api/skyblock/profile/${username}/${cute_name}`,headers: { 'User-Agent': ' Mozilla/5.0' }}).then(response => JSON.parse(response)).catch(error =>{ print(error);});
+export const slothpixel_api_achiev = (username) => request({url : `https://api.slothpixel.me/api/players/${username}/achievements`,headers: { 'User-Agent': ' Mozilla/5.0' }}).then(response => JSON.parse(response)).catch(error =>{ print(error);});
 export const check_apikey = (apikey) => request({url : `https://api.hypixel.net/key?key=${apikey}`,headers: { 'User-Agent': ' Mozilla/5.0' }}).then(response => JSON.parse(response)).catch(error =>{ print(error);});
 export const get_profile_id = (user_uuid, profiles=null, apikey=null) => {
   const getRecent = (profiles) => !profiles.profiles || !profiles.profiles.length ? null : profiles.profiles.find(a => a.selected) ?? profiles[0]

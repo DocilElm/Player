@@ -21,8 +21,8 @@ export const slayer_feature = register("command", username => {
             var eman_xp = slayers.enderman.xp;
             var blaze_xp = slayers.blaze.xp;
             if(!rev_xp){
-              rev_xp = null;
-              rev_lvl = null;
+              rev_xp = 0;
+              rev_lvl = 0;
             }else{
               var rev_lvl = slayer_loop(rev_xp);
               rev_xp = short_number(rev_xp);
@@ -59,8 +59,8 @@ export const slayer_feature = register("command", username => {
                 }
               }
             } if(!tara_xp){
-              tara_xp = null;
-              tara_lvl = null;
+              tara_xp = 0;
+              tara_lvl = 0;
             }else{
               var tara_lvl = slayer_loop(tara_xp);
               tara_xp = short_number(tara_xp);
@@ -92,8 +92,8 @@ export const slayer_feature = register("command", username => {
                 }
               }
             } if(!sven_xp){
-              sven_xp = null;
-              sven_lvl = null;
+              sven_xp = 0;
+              sven_lvl = 0;
             }else{
               var sven_lvl = slayer_loop(sven_xp);
               sven_xp = short_number(sven_xp);
@@ -125,8 +125,8 @@ export const slayer_feature = register("command", username => {
                 }
               }
             } if(!eman_xp){
-              eman_xp = null;
-              eman_lvl = null;
+              eman_xp = 0;
+              eman_lvl = 0;
             }else{
               var eman_lvl = slayer_loop(eman_xp);
               eman_xp = short_number(eman_xp);
@@ -158,8 +158,8 @@ export const slayer_feature = register("command", username => {
                 }
               }
             } if(!blaze_xp){
-              blaze_xp = null;
-              blaze_lvl = null;
+              blaze_xp = 0;
+              blaze_lvl = 0;
             }else{
               var blaze_lvl = slayer_loop(blaze_xp);
               blaze_xp = short_number(blaze_xp);

@@ -123,8 +123,8 @@ export const nether_feature = register("command", username => {
         tenacity = short_number(tenacity)
         control = short_number(control)
       }if(!netherdata.members[pid].nether_island_player_data.selected_faction){
-        var faction = null
-        var reputation = null
+        var faction = "NONE";
+        var reputation = 0;
       }else{
         var faction = netherdata.members[pid].nether_island_player_data.selected_faction;
         var faction_reputation = `${faction}_reputation`;

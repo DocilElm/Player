@@ -64,18 +64,26 @@ export const slayer_loop = (slayer_xp) =>{
     slayer_i++;
   }
 }
-export const cata_loop = (cata_val) =>{
+export const cata_loop = (cata_val, value) =>{
   cxp = Math.trunc(cata_val);
+  if(value == 1){
+    let exp_i = 0;
+    while (exp_i < 101) {
+      var check_cxp = cata_xp_lvl[exp_i]
+      if(check_cxp >= cxp && cxp <= check_cxp-1){
+        let cata_exp = exp_i-1;
+        cata_exp = cata_xp_lvl[cata_exp];
+        return cata_exp;
+      }
+      exp_i++;
+    }
+  }
   let c_i = 0;
-  while (c_i < 51) {
+  while (c_i < 101) {
     var check_cxp = cata_xp_lvl[c_i]
     if(check_cxp >= cxp && cxp <= check_cxp-1){
       let lvl = c_i
       return get_cfloat(lvl, cxp);
-    }
-    if (cxp > cata_xp_lvl[50]){
-      var cata_lvl = 50
-      return cata_lvl;
     }
     if (cxp == cata_xp_lvl[50]){
       var cata_lvl = 50      
@@ -154,11 +162,6 @@ export const pb_date = (d) =>{
     return `${minutes}:${seconds}`;
   }
 }
-export const unranked_username = (username) => {
-  username = username.removeFormatting()
-  username = username.replace(/\[[\w+\+-]+] /, "").trim()
-  return username;
-}
 export const lore_loop = (lore) => {
   var lore_length = lore.length;
   let lore_i = 0;
@@ -189,6 +192,8 @@ export const lore_loop = (lore) => {
       item_lore = reg_lore(item_lore,'âžŽ', '➎');
       item_lore = reg_lore(item_lore,'âšš', '⚚');
       item_lore = reg_lore(item_lore,'âœ¿', '✿');
+      item_lore = item_lore.replace(/(&9)\D+ (VII|7)/g, (match) => item_lore = match.replace('&9','&c'));
+      item_lore = item_lore.replace(/(&9)\D+ (VI|6)/g, (match) => item_lore = match.replace('&9','&6'));
       result = item_lore;
       return result;
     }

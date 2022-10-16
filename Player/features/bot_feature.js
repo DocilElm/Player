@@ -1,15 +1,14 @@
 import config from "../config";
 import { get_uuid, g_rank, PREFIX } from "../utils/cons";
-import { break_chat, colors, mid_chat, unranked_username } from "./../utils/functions"
+import { break_chat, colors, mid_chat } from "./../utils/functions"
 let allowed_users = []
 register("chat", (username) => {
-    if(!config.bot_feature_check) return
-    if(!allowed_users) return
-    username = unranked_username(username)
+    if(!config.bot_feature_check) return;
+    if(!allowed_users) return;
     if(allowed_users.includes(username)){
         ChatLib.command(`p accept ${username}`)
       }
-}).setChatCriteria("${username} has invited you to join their party!")
+}).setChatCriteria("${*} ${username} has invited you to join ${*} party!${*}")
 
 export const pbot_feature = register("command", (...args) => {
     if(!args || !args[0]){return mid_chat(`${PREFIX}${colors[1]}Please Use /pbot add | remove <Username>`);}

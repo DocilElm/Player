@@ -1,7 +1,6 @@
-import { hover_msg, break_chat, mid_chat, colors, lore_loop, reg_lore, short_number, math_number } from "./../utils/functions"
-import { g_rank, PREFIX, get_profile_id, slothpixel_api, get_dungeons } from "./../utils/cons"
+import { hover_msg, break_chat, mid_chat, colors, lore_loop, reg_lore, short_number, math_number, cata_loop } from "./../utils/functions"
+import { g_rank, PREFIX, get_profile_id, slothpixel_api, slothpixel_api_achiev } from "./../utils/cons"
 import { drag } from "../utils/petlvl";
-import { max_cata_lvl } from "../utils/cata";
 import config from "../config";
 register("chat", (username, user_class) => {
   if(!config.auto_pf_check) return
@@ -25,11 +24,12 @@ register("chat", (username, user_class) => {
         break_chat(5)
         mid_chat(`${PREFIX} ${name_}`)
         break_chat(5)
-        mid_chat(`${colors[5]}Items`)
         var has_items = false
         var has_gyro = false;
         var has_ice_spray = false;
         var mage_has_claymore = false;
+        var mage_has_gs = false;
+        var mage_class = false;
         Object.entries(p_inv).forEach(([key, value]) => {
           let lore = value.lore;
             if(!lore){}else {
@@ -50,7 +50,9 @@ register("chat", (username, user_class) => {
             }
             //
             if(user_class.includes("Mage") || user_class.includes("mage")){
+              mage_class = true;
               if(i_name.includes("Giant's Sword")){
+                mage_has_gs = true;
                 var item_name = reg_lore(value.name,'Â§', '&');
                 item_name = reg_lore(item_name,'âœª', '✪');
                 item_name = reg_lore(item_name,'âžŠ', '➊');
@@ -109,12 +111,12 @@ register("chat", (username, user_class) => {
             }
             }
           });
-          if(!has_items){mid_chat(`${colors[1]} User Does Not Own Terminator/Or Any Type Of Necron's Blade`);}
-          if(!has_gyro){mid_chat(`${colors[1]} User Does Not Own Gyrokinetic Wand`);}
-          if(!has_ice_spray){mid_chat(`${colors[1]} User Does Not Own Ice Spray Wand`);}
-          if(!mage_has_claymore){mid_chat(`${colors[1]} User Does Not Own Dark Claymore`);}
+          if(!has_items){mid_chat(`${colors[1]} No Terminator/Or Any Type Of Necron's Blade`);}
+          if(!has_gyro){mid_chat(`${colors[1]} No Gyrokinetic Wand`);}
+          if(!has_ice_spray){mid_chat(`${colors[1]} No Ice Spray Wand`);}
+          if(!mage_has_claymore && mage_class){mid_chat(`${colors[1]} No Dark Claymore`);}
+          if(!mage_has_claymore && !mage_has_gs && mage_class){mid_chat(`${colors[1]} No Giant's Sword`);}
           break_chat(5)
-          mid_chat(`${colors[5]}Armor`)
           Object.entries(p_armor).forEach(([key, value]) => {
             let lore = value.lore;
               if(!lore){}else {
@@ -132,7 +134,6 @@ register("chat", (username, user_class) => {
               }
             });
             break_chat(5)
-        mid_chat(`${colors[5]}Pets`)
         var has_spirit_pet = false;
         var has_drag_pet = false;
         Object.entries(p_pets).forEach(([key, value]) => {
@@ -181,7 +182,6 @@ register("chat", (username, user_class) => {
           if(!has_spirit_pet){mid_chat(`${colors[6]}Has Spirit Pet: ${colors[1]}False`);}
           if(!has_drag_pet){mid_chat(`${colors[1]}User Does Not Own Any Kind Of Dragon Pet`);}
         break_chat(5)
-          mid_chat(`${colors[5]}Talisman`)
           let total_mp = 0
           Object.entries(p_mp).forEach(([key, value]) => {
             var t_name = value.name;
@@ -221,8 +221,6 @@ register("chat", (username, user_class) => {
             });
             mid_chat(`${colors[6]}Total Magic Power: ${colors[3]}${short_number(total_mp)}`)
             mid_chat(`${colors[6]}Total Soulflow: ${colors[3]}${short_number(soul_flow)}`)
-            break_chat(5)
-            mid_chat(`${colors[5]}Quiver`)
           let total_arrows = 0
           let arrow_name
           Object.entries(p_arrows).forEach(([key, value]) => {
@@ -237,34 +235,43 @@ register("chat", (username, user_class) => {
             });
             mid_chat(`${arrow_name}s: ${colors[3]}${short_number(total_arrows)}`)
             break_chat(5)
-            mid_chat(`${colors[5]}Cata`)
-          get_dungeons(username, cute_name).then(cata_ =>{
-            var cdata = cata_.dungeons;
-            if(!cdata) return print("cdata error");
-            var secrets_found = cdata.secrets_found;
-            if(!secrets_found) return print("secrets error");
-            var catacombs_lvl = cdata.catacombs.level.levelWithProgress.toFixed(2);      
-            if(!catacombs_lvl) return print("catalvl error");
-            var catacombs_xp = cdata.catacombs.level.xp;
-            if(!catacombs_xp) return print("cataxp error");
+          slothpixel_api(username, cute_name).then(cata_data => {
+            var dungeons = cata_data.members[user_uuid].dungeons;
+          slothpixel_api_achiev(username).then(secrets_data =>{
+            var secrets_found = secrets_data.games.SkyBlock.tiered["TREASURE_HUNTER"].current_amount;
+            var cata_val = dungeons.dungeon_types.catacombs.experience;
+            var cata_50 = 569809640;
+            //cata
+            if (!cata_val) cata_val = null;
+            var cata_lvl = cata_loop(cata_val)
+            var cata_over_50 = cata_loop(cata_val, 1)
+            if(cata_lvl < 50){
+              cata_lvl = `${colors[15]}${cata_lvl}`
+              cata_val = math_number(cata_val);
+              cata_val = short_number(cata_val);
+              cata_val = `${colors[6]}Total XP: ${colors[15]}${cata_val}`;
+            }
+            else if(cata_lvl == 50){
+              cata_lvl = `${colors[3]}${cata_lvl}`
+              cata_val -= cata_50;
+              cata_val = math_number(cata_val);
+              cata_val = short_number(cata_val);
+              cata_val = `${colors[6]}Overflow XP: ${colors[3]}${cata_val}`;
+            }else if(cata_lvl > 50){
+              cata_lvl = `${colors[3]}${cata_lvl}`
+              cata_val -= cata_over_50;
+              cata_val = math_number(cata_val);
+              cata_val = short_number(cata_val);
+              cata_val = `${colors[6]}Overflow XP: ${colors[3]}${cata_val}`;
+            }
             secrets_found = short_number(secrets_found);
-
-            if(catacombs_lvl < 50){
-              catacombs_lvl = `${colors[15]}${catacombs_lvl}`
-              catacombs_xp = math_number(catacombs_xp);
-              catacombs_xp = short_number(catacombs_xp);
-              catacombs_xp = `${colors[6]}Total XP: ${colors[15]}${catacombs_xp}`;
-            }
-            else if(catacombs_lvl == 50){
-              catacombs_lvl = `${colors[3]}${catacombs_lvl}`
-              catacombs_xp -= max_cata_lvl.max_cata[50];
-              catacombs_xp = math_number(catacombs_xp);
-              catacombs_xp = short_number(catacombs_xp);
-              catacombs_xp = `${colors[6]}Overflow XP: ${colors[3]}${catacombs_xp}`;
-            }
-            hover_msg(`${colors[1]}Cata: ${catacombs_lvl}`, `${catacombs_xp}`)
+            hover_msg(`${colors[1]}Cata: ${cata_lvl}`, `${cata_val}`)
             mid_chat(`${colors[6]}Total Secrets: ${colors[3]}${secrets_found}`)
             break_chat(5)
+          }).catch(function(error) {
+            print(error)
+            return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Secrets Data`);
+         });
           }).catch(function(error) {
             print(error)
             return mid_chat(`${PREFIX}${colors[1]}Error Getting Player's Cata Data`);
